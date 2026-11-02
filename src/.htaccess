@@ -1,0 +1,38 @@
+# 일반 아파치 호스팅에 src/ 를 그대로 올릴 때의 보호 규칙
+# (도커 배포에서는 docker/Dockerfile 의 deny-sensitive.conf 가 같은 일을 한다)
+#
+# ⚠ .env 는 이 폴더 안에 두어야 config.php 가 읽는다 — 그래서 웹 노출 차단이 필수다.
+#   올린 뒤 반드시 확인:  curl -I https://<도메인>/<경로>/.env   →  403 또는 404 여야 한다.
+#   200 이 나오면 .htaccess 가 무시되는 설정이므로(AllowOverride None),
+#   .env 를 웹 루트 밖으로 빼고 환경변수로 넘기거나 서버 설정에 같은 규칙을 넣어야 한다.
+
+<FilesMatch "^\.env">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<FilesMatch "\.(sql|md|sh|log|yml|example)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# 세션 파일(.sessions/) 차단
+<FilesMatch "^sess_">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>

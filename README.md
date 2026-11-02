@@ -24,6 +24,38 @@ docker compose up -d --build
 **로그인이 없습니다.** 권리금 도구는 모두 공개라 바로 쓸 수 있고,
 관리자 페이지만 `.env` 의 `DASHBOARD_PASSWORD` 로 보호됩니다 (인증하면 사이드바에 관리자 메뉴가 나타납니다).
 
+## 일반 아파치 호스팅에 올리기
+
+도커 없이 기존 웹서버에 올릴 때는 **`src/` 폴더만 웹에 노출**하고 저장소 자체는 웹 루트 밖에 둡니다.
+
+```bash
+git clone https://github.com/YUSEONCHUN/calculating.git ~/apps/calu
+ln -s ~/apps/calu/src /home/계정/public_html/원하는경로
+```
+
+```bash
+cp ~/apps/calu/.env.example ~/apps/calu/src/.env   # DB·키를 채워 넣습니다
+mysql -u <사용자> -p <DB명> < ~/apps/calu/schema.sql
+```
+
+| 항목 | 값 |
+|---|---|
+| 웹 문서 폴더 | `src/` (저장소 루트가 아닙니다) |
+| 설정 파일 위치 | **`src/.env`** — `config.php` 가 같은 폴더에서 읽습니다 |
+| DB 설정 | `DB_HOST=localhost` · `DB_PORT=3306` · 나머지는 호스팅 계정 값 |
+| 요구 사항 | PHP 7.2 이상 (8.x 호환) · PDO MySQL · cURL |
+| 업데이트 | `cd ~/apps/calu && git pull` |
+
+> ⚠ `.env` 가 웹 폴더 안에 있어야 하므로 **노출 차단이 필수**입니다. `src/.htaccess` 에 차단 규칙이 들어 있지만,
+> 서버가 `AllowOverride None` 이면 무시됩니다. 올린 뒤 `curl -I https://도메인/경로/.env` 로 **403 또는 404**가 나오는지 반드시 확인하세요.
+> 200 이 나오면 키가 그대로 내려받히는 상태이므로, 서버 설정에 같은 규칙을 넣거나 환경변수 방식으로 바꿔야 합니다.
+
+심볼릭 링크를 쓸 수 없는 호스팅이면 복사 방식으로 배포합니다.
+
+```bash
+cd ~/apps/calu && git pull && rsync -a --delete --exclude .env --exclude .sessions src/ /home/계정/public_html/원하는경로/
+```
+
 ## 들어 있는 도구
 
 | 페이지 | 설명 |
