@@ -91,26 +91,44 @@ def render_chart(gf, l, t, w, h):
     series = []
     for si, s in enumerate(ch.series):
         vals = [v if v is not None else 0 for v in s.values]
-        series.append((s.name or f'계열{si+1}', vals))
+        # 실제 채움색을 읽는다 (계열 색 → 없으면 점별 색)
+        scol = None
+        try:
+            if s.format.fill.type == 1:
+                scol = str(s.format.fill.fore_color.rgb)
+        except Exception:
+            pass
+        pcols = []
+        try:
+            for pt in s.points:
+                try:
+                    pcols.append(str(pt.format.fill.fore_color.rgb) if pt.format.fill.type == 1 else None)
+                except Exception:
+                    pcols.append(None)
+        except Exception:
+            pass
+        series.append((s.name or f'계열{si+1}', vals, scol, pcols))
     if not series or not cats:
         return f'<div class="sh" style="left:{l}px;top:{t}px;width:{w}px;height:{h}px;border:1px dashed #94a3b8"></div>'
-    mx = max(max(v for v in vals) for _, vals in series) or 1
+    mx = max(max(v for v in vals) for _, vals, _, _ in series) or 1
     body_h = h - 46
     grp_html = []
     for ci, cat in enumerate(cats):
         bars = []
-        for si, (nm, vals) in enumerate(series):
+        for si, (nm, vals, scol, pcols) in enumerate(series):
             v = vals[ci] if ci < len(vals) else 0
             bh = max(2, (v/mx) * (body_h - 18))
             lbl = f'{v:.2f}' if mx <= 3 else f'{v:.0f}'
-            bars.append(f'<div class="bar"><b>{lbl}</b><i style="height:{bh}px;background:#{PAL[si%len(PAL)]}"></i></div>')
+            col = (pcols[ci] if ci < len(pcols) and pcols[ci] else None) or scol or PAL[si % len(PAL)]
+            bars.append(f'<div class="bar"><b>{lbl}</b><i style="height:{bh}px;background:#{col}"></i></div>')
         grp_html.append('<div class="grp" style="flex-direction:column;justify-content:flex-end">'
                         f'<div style="display:flex;align-items:flex-end;gap:5px;height:{body_h}px">' + ''.join(bars) + '</div>'
                         f'<div class="cat">{html.escape(cat)}</div></div>')
     legend = ''
     if len(series) > 1:
         legend = '<div class="lg">' + ' &nbsp; '.join(
-            f'<span style="color:#{PAL[i%len(PAL)]}">■</span> {html.escape(nm)}' for i, (nm, _) in enumerate(series)) + '</div>'
+            f'<span style="color:#{(sc or PAL[i%len(PAL)])}">■</span> {html.escape(nm)}'
+            for i, (nm, _, sc, _) in enumerate(series)) + '</div>'
     return (f'<div class="chart" style="left:{l}px;top:{t}px;width:{w}px;height:{h}px">'
             f'<div class="bars" style="height:{body_h+18}px">' + ''.join(grp_html) + '</div>' + legend + '</div>')
 

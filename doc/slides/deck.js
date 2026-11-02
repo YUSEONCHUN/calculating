@@ -96,9 +96,9 @@ pres.defineSlideMaster({
     { rect: { x: 0.36, y: 0.5, w: 0.1, h: 0.62, fill: { color: T.accent1 } } },
     { placeholder: { options: { name: 'title', type: 'title', x: 0.7, y: 0.42, w: 11.9, h: 0.78,
         fontSize: 30, bold: true, color: C.text1 }, text: '' } },
-    { placeholder: { options: { name: 'chart', type: 'chart', x: 0.6, y: 1.7, w: 7.4, h: 4.3,
+    { placeholder: { options: { name: 'chart', type: 'chart', x: 0.6, y: 1.68, w: 7.4, h: 3.95,
         color: C.text1 }, text: '' } },
-    { placeholder: { options: { name: 'body', type: 'body', x: 8.4, y: 1.75, w: 4.3, h: 4.2,
+    { placeholder: { options: { name: 'body', type: 'body', x: 8.4, y: 1.72, w: 4.3, h: 3.9,
         fontSize: 14, color: C.text2 }, text: '' } },
     { text: { text: FOOT, options: { x: 0.7, y: 6.98, w: 8, h: 0.3, fontSize: 9,
         color: T.accent5, isTextBox: true, margin: 0 } } },
@@ -392,8 +392,8 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
     { text: '보통~큰 약국 — A안이 3분의 2 수준', options: { bold: true, fontSize: 15, color: T.accent1, breakLine: true } },
     { text: '어떤 배수를 넣어도 동시에 맞출 수 없다 → B안 채택', options: { fontSize: 13, color: C.text2 } },
   ], { placeholder: 'body' });
-  bridge(s, 5.95, 'B안으로 계산기를 만들었습니다 — 그게 1차입니다');
-  footnote(s, 6.4, [
+  bridge(s, 5.8, 'B안으로 계산기를 만들었습니다 — 그게 1차입니다');
+  footnote(s, 6.25, [
     '· 매출총이익 — 매출에서 약값·물건값을 뺀, 가게에 남는 이익.  ·  "범위 안에 들었다" = 응답 금액이 계산기의 최소~최대 사이.',
     '· 조사지 원본과 설계는 9번 슬라이드(숨김)에 있습니다.',
   ]);
@@ -464,8 +464,8 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
     { text: '적중 41/60 → 51/60', options: { bold: true, fontSize: 17, color: T.accent1, breakLine: true } },
     { text: '조사원 3은 9/20 → 18/20 — 높게 보는 성향이 보정으로 흡수', options: { fontSize: 12, color: C.text2 } },
   ], { placeholder: 'body' });
-  bridge(s, 5.95, '그런데 쓰다 보니 이상한 게 나왔습니다');
-  footnote(s, 6.4, [
+  bridge(s, 5.8, '그런데 쓰다 보니 이상한 게 나왔습니다');
+  footnote(s, 6.25, [
     '· 막대는 "조사원이 적은 금액 ÷ 계산기 금액"의 가운데 값. 1.00보다 크면 계산기가 낮게, 작으면 높게 본 것입니다.',
     '· 계산식 5단계와 지역별 개월수 표는 11번 슬라이드(숨김)에 있습니다.',
   ]);
@@ -523,7 +523,7 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   s.addText('그런데 — 조제료 1만원 차이로 권리금이 2배가 됐다', { placeholder: 'title' });
   lead(s, '같은 조건에서 조제료만 1만원 바꾼 결과 — 서울 일반 · 일매출 18만원 · 월세 100만원 · 보증금 3,500만원');
 
-  shot(s, 'v1-cliff-compare.jpg', 0.95, 1.75, 11.4, 3.93,
+  shot(s, 'v1-cliff-compare.jpg', 1.05, 1.72, 11.2, 3.86,
     '1차 계산 결과 비교 — 조제료 999만원(규모 배수 0.50, 9,118만원~1.49억원)과 1,000만원(1.00, 1.83~2.99억원)');
 
   const jumps = [['1,000만원', '0.50 → 1.00', '+100%', T.accent6],
@@ -532,16 +532,16 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
                  ['5,000만원', '1.25 → 1.35', '+8%', T.dk2]];
   jumps.forEach((j, i) => {
     const x = 0.7 + i * 3.05;
-    card(s, x, 5.78, 2.8, 0.8, { fill: i === 0 ? 'FDE7E6' : C.background2,
-      line: i === 0 ? 'FCA5A5' : 'D6DAE5', name: 'jump' + i });
-    s.addText(j[0] + ' 경계', { x: x + 0.2, y: 5.84, w: 1.7, h: 0.3, fontSize: 11.5,
+    card(s, x, 5.68, 2.8, 0.78, { fill: i === 0 ? 'FDE7E6' : C.background2,
+      line: i === 0 ? 'F3B3B1' : 'D6DAE5', name: 'jump' + i });
+    s.addText(j[0] + ' 경계', { x: x + 0.2, y: 5.73, w: 1.7, h: 0.28, fontSize: 11.5,
       color: C.text2, isTextBox: true, margin: 0 });
-    s.addText(j[1], { x: x + 0.2, y: 6.12, w: 1.7, h: 0.3, fontSize: 11.5, color: C.text2,
+    s.addText(j[1], { x: x + 0.2, y: 6.0, w: 1.7, h: 0.28, fontSize: 11.5, color: C.text2,
       isTextBox: true, margin: 0 });
-    s.addText(j[2], { x: x + 1.75, y: 5.9, w: 0.9, h: 0.5, fontSize: 17, bold: true,
+    s.addText(j[2], { x: x + 1.75, y: 5.78, w: 0.9, h: 0.5, fontSize: 17, bold: true,
       color: j[3], align: 'right', valign: 'middle', isTextBox: true, margin: 0 });
   });
-  bridge(s, 6.68, '"이 절벽을 완만하게 만들 수 없을까?" — 2차의 출발점');
+  bridge(s, 6.52, '"이 절벽을 완만하게 만들 수 없을까?" — 2차의 출발점');
   s.addNotes('구간을 나눈 편의가 그대로 결과의 왜곡이 됐습니다. 999만원과 1,000만원 약국이 두 배 차이 날 리가 없습니다. 쓰는 사람에게는 신뢰 문제입니다. 여기서 2차 작업이 시작됩니다.');
 }
 
@@ -549,8 +549,9 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.hist });
   s.addText('2차 — 네 지점은 두고, 사이만 직선으로 이었다', { placeholder: 'title' });
-  lead(s, '다섯 숫자는 조사로 검증된 자산이라 그대로 두고, "구간마다 고정"이라는 가정만 바꿨습니다.');
-  shot(s, 'presc-mult-curve.png', 2.15, 1.65, 9.0, 4.2,
+  s.addText('다섯 숫자는 조사로 검증된 자산이라 그대로 두고, "구간마다 고정"이라는 가정만 바꿨습니다.',
+    { x: 0.7, y: 1.2, w: 11.9, h: 0.3, fontSize: 15, color: C.text2, isTextBox: true, margin: 0 });
+  shot(s, 'presc-mult-curve.png', 2.49, 1.64, 8.36, 3.9,
     '조제료 규모 배수 그래프 — 1차 계단형과 2차 직선 연결이 1,000/2,500/3,500/5,000만원 지점에서 만난다');
 
   const facts = [
@@ -560,13 +561,13 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   ];
   facts.forEach((f, i) => {
     const x = 0.7 + i * 4.1;
-    card(s, x, 5.95, 3.7, 0.8, { fill: 'E3E6F5', line: 'B9BEE6', name: 'fact' + i });
-    s.addText(f[0], { x: x + 0.22, y: 6.0, w: 3.3, h: 0.3, fontSize: 11.5, color: '2A2E73',
+    card(s, x, 5.72, 3.7, 0.74, { fill: 'E3E6F5', line: 'B9BEE6', name: 'fact' + i });
+    s.addText(f[0], { x: x + 0.22, y: 5.76, w: 3.3, h: 0.28, fontSize: 11.5, color: '2A2E73',
       isTextBox: true, margin: 0 });
-    s.addText(f[1], { x: x + 0.22, y: 6.3, w: 3.3, h: 0.35, fontSize: 14, bold: true,
+    s.addText(f[1], { x: x + 0.22, y: 6.04, w: 3.3, h: 0.34, fontSize: 14, bold: true,
       color: '2A2E73', isTextBox: true, margin: 0 });
   });
-  bridge(s, 6.82, '그러면 2차가 더 정확해야 할 텐데 — 같은 60건으로 확인해 봤습니다');
+  bridge(s, 6.5, '그러면 2차가 더 정확해야 할 텐데 — 같은 60건으로 확인해 봤습니다');
   s.addNotes('구간 사이를 직선으로 이었습니다. 네 지점의 값은 1차와 똑같으니 조사로 얻은 기준은 그대로 보존됩니다. 절벽은 사라졌습니다. 다른 방법들을 왜 버렸는지는 14번 숨김 슬라이드에 있습니다.');
 }
 
@@ -614,7 +615,7 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
     { name: '2차', labels: ['전체', '작은 약국', '보통~큰 약국'], values: [0.926, 0.525, 0.943] },
   ], Object.assign(chartBase(), {
     placeholder: 'chart',
-    chartColors: [T.accent1, T.accent6],
+    chartColors: [T.accent1, T.accent2],
     showValue: true, dataLabelPosition: 'outEnd', dataLabelFormatCode: '0.00',
     showLegend: true, legendPos: 'b', legendColor: T.dk2, legendFontSize: 12,
     valAxisMaxVal: 1.2, valAxisMinVal: 0,
@@ -622,14 +623,14 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   s.addText([
     { text: '조사원 응답 ÷ 계산기 금액 (1.00이면 완전 일치)', options: { fontSize: 12, color: T.accent5, breakLine: true } },
     { text: '범위 적중  1차 51/60  ·  2차 42/60', options: { bold: true, fontSize: 16, color: C.text1, breakLine: true } },
-    { text: '차이는 전부 작은 약국에서', options: { bold: true, fontSize: 15, color: T.accent6, breakLine: true } },
+    { text: '차이는 전부 작은 약국에서', options: { bold: true, fontSize: 15, color: T.accent2, breakLine: true } },
     { text: '2차는 직선으로 이어 조제료 800만원에 배수 0.90', options: { bullet: true, breakLine: true, fontSize: 13 } },
     { text: '1차의 0.50은 작은 약국 응답으로 직접 맞춘 값', options: { bullet: true, breakLine: true, fontSize: 13 } },
     { text: '작은 약국 표본이 3건뿐 → 지금은 결론 불가', options: { bullet: true, breakLine: true, fontSize: 13 } },
     { text: '→ 1차를 기본값 유지, 2차는 비교용으로 존치', options: { bold: true, fontSize: 15, color: T.accent1 } },
   ], { placeholder: 'body' });
-  bridge(s, 5.95, '여기까지는 입력한 숫자만 썼습니다 — 3차는 입력하지 않은 정보를 가져옵니다');
-  footnote(s, 6.4, [
+  bridge(s, 5.8, '여기까지는 입력한 숫자만 썼습니다 — 3차는 입력하지 않은 정보를 가져옵니다');
+  footnote(s, 6.25, [
     '· 2차가 더 매끄럽지만 작은 약국에서 금액을 높게 잡습니다 — 1차의 0.50이 실제 응답으로 맞춘 값이라 서로 충돌합니다.',
     '· 검증 데이터를 미리 만들어 두지 않았다면, 더 매끄럽다는 이유로 2차를 기본값으로 바꿨을 것입니다.',
   ]);
@@ -785,18 +786,18 @@ divider(SEC.res, 3, 'SO WHAT', '그래서 무엇이 달라졌나',
   s.addTable(rows, tableOpts({ x: 0.7, y: 1.7, w: 11.9, fontSize: 13,
     colW: [2.9, 2.9, 2.6, 3.5], rowH: 0.5 }));
 
-  kicker(s, 0.7, 5.3, '3차는 조사 응답과 직접 비교가 안 돼 네 가지로 확인했습니다');
+  kicker(s, 0.7, 5.24, '3차는 조사 응답과 직접 비교가 안 돼 네 가지로 확인했습니다');
   const axes = [['기본 금액 일치', '1차와 같은 값'], ['재현성', '같은 입력 → 같은 금액'],
                 ['실측 정확도', '강남 6.1:1 = 평균의 3.6배'], ['고장 대비', '미조회 안내 · 예비 AI 전환']];
   axes.forEach((a, i) => {
     const x = 0.7 + i * 3.05;
-    card(s, x, 5.62, 2.8, 0.86, { fill: 'E6E9F4', line: 'B4BBDD', name: 'axis' + i });
-    s.addText(a[0], { x: x + 0.2, y: 5.7, w: 2.45, h: 0.3, fontSize: 12.5, bold: true,
+    card(s, x, 5.54, 2.8, 0.84, { fill: 'E6E9F4', line: 'B4BBDD', name: 'axis' + i });
+    s.addText(a[0], { x: x + 0.2, y: 5.6, w: 2.45, h: 0.3, fontSize: 12.5, bold: true,
       color: '273164', isTextBox: true, margin: 0 });
-    s.addText(a[1], { x: x + 0.2, y: 5.99, w: 2.45, h: 0.4, fontSize: 11, color: '3A4580',
+    s.addText(a[1], { x: x + 0.2, y: 5.89, w: 2.45, h: 0.38, fontSize: 11, color: '3A4580',
       isTextBox: true, margin: 0 });
   });
-  bridge(s, 6.6, '문제는, 이 85%가 2026년 9월에 멈춰 있다는 점입니다');
+  bridge(s, 6.48, '문제는, 이 85%가 2026년 9월에 멈춰 있다는 점입니다');
   s.addNotes('세 버전은 경쟁 관계가 아니라 역할 분담입니다. 3차의 기본 금액은 1차와 완전히 같은 값이고, 화면에도 그 환산 줄이 함께 나옵니다.');
 }
 
@@ -804,7 +805,8 @@ divider(SEC.res, 3, 'SO WHAT', '그래서 무엇이 달라졌나',
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.res });
   s.addText('그래서 조사를 앱 안으로 넣었다', { placeholder: 'title' });
-  lead(s, '계산기는 60응답으로 맞춰졌고, 그 60응답은 2026년 9월에 멈춰 있습니다.');
+  s.addText('계산기는 60응답으로 맞춰졌고, 그 60응답은 2026년 9월에 멈춰 있습니다.',
+    { x: 0.7, y: 1.22, w: 8.2, h: 0.4, fontSize: 15, color: C.text2, isTextBox: true, margin: 0 });
 
   const flow = [
     ['설문', '응답자 1명당 6케이스 · 2~3분 · 익명'],
@@ -829,11 +831,11 @@ divider(SEC.res, 3, 'SO WHAT', '그래서 무엇이 달라졌나',
   shot(s, 'survey-card.jpg', 9.1, 1.55, 3.3, 4.55,
     '적정성 설문 케이스 화면 — 조건표, 계산기 금액, 판정과 조정 입력');
 
-  card(s, 0.7, 5.8, 7.9, 0.78, { fill: C.background2, name: 'guard' });
+  card(s, 0.7, 5.7, 7.9, 0.74, { fill: C.background2, name: 'guard' });
   s.addText('안전장치 — 응답자 유형 4종 분리 · 30건 이상 쌓인 지역만 · 조정 폭 ±10~15% · 관리자 확인 후 반영',
-    { x: 1.0, y: 5.8, w: 7.4, h: 0.78, fontSize: 12.5, bold: true, color: C.text1,
+    { x: 1.0, y: 5.7, w: 7.4, h: 0.74, fontSize: 12.5, bold: true, color: C.text1,
       isTextBox: true, margin: 0, valign: 'middle' });
-  bridge(s, 6.68, '쓸수록 정확해지는 구조 — 다만 표본이 모여야 작동합니다');
+  bridge(s, 6.5, '쓸수록 정확해지는 구조 — 다만 표본이 모여야 작동합니다');
   s.addNotes('0단계에서 사람이 하던 일을 사용자가 대신하고, 그 결과가 다시 계산식으로 들어가는 순환입니다. 계산식이 응답 몇 건에 흔들리지 않도록 안전장치를 함께 뒀습니다.');
 }
 
