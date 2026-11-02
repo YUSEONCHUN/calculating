@@ -1,5 +1,5 @@
 /**
- * 약국 권리금 계산기 — 발표 슬라이드 생성기 (27장: 보이는 19장 + 숨김 8장)
+ * 약국 권리금 계산기 — 발표 슬라이드 생성기 (28장: 보이는 19장 + 숨김 9장)
  *
  *   node doc/slides/deck.js
  *
@@ -9,7 +9,7 @@
  *
  * 발표 설계 —
  *   · 10~20분 기준. 보이는 19장(전환 4장 포함)으로 흐름을 유지하고,
- *     상세 자료 8장은 PowerPoint '숨김'으로 두어 질문이 나올 때만 번호로 띄운다.
+ *     상세 자료 9장은 PowerPoint '숨김'으로 두어 질문이 나올 때만 번호로 띄운다.
  *   · 주제가 바뀌는 자리마다 WHY / HOW / SO WHAT / NEXT 전환 슬라이드를 둔다.
  *     각 전환 장에 "앞에서 본 것 → 지금부터 볼 것"을 적어 이야기가 끊기지 않게 한다.
  *   · 슬라이드 끝의 bridge() 한 줄이 다음 장으로 말을 넘긴다.
@@ -395,7 +395,7 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   bridge(s, 5.8, 'B안으로 계산기를 만들었습니다 — 그게 1차입니다');
   footnote(s, 6.25, [
     '· 매출총이익 — 매출에서 약값·물건값을 뺀, 가게에 남는 이익.  ·  "범위 안에 들었다" = 응답 금액이 계산기의 최소~최대 사이.',
-    '· 조사지 원본과 설계는 9번 슬라이드(숨김)에 있습니다.',
+    '· 조사지 원본과 설계는 9번, 계산식을 세운 과정은 11번 슬라이드(숨김)에 있습니다.',
   ]);
   s.addNotes('계산식을 먼저 만들면 맞는지 확인할 방법이 없습니다. 그래서 현장 감각부터 숫자로 받았습니다. 두 계산식을 같은 20케이스에 돌려 비교했더니, A안은 작은 약국에서 3배 높고 큰 약국에서 3분의 2로 낮았습니다. 방향이 반대라 어떤 배수로도 동시에 못 맞춥니다.');
 }
@@ -467,12 +467,42 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   bridge(s, 5.8, '그런데 쓰다 보니 이상한 게 나왔습니다');
   footnote(s, 6.25, [
     '· 막대는 "조사원이 적은 금액 ÷ 계산기 금액"의 가운데 값. 1.00보다 크면 계산기가 낮게, 작으면 높게 본 것입니다.',
-    '· 계산식 5단계와 지역별 개월수 표는 11번 슬라이드(숨김)에 있습니다.',
+    '· 계산식을 어떻게 세웠는지(11번)와 5단계 식·지역별 개월수 표(12번)는 숨김 슬라이드에 있습니다.',
   ]);
   s.addNotes('1차 계산식을 만들고 60응답과 대조했더니 두 가지가 보였습니다. 큰 약국은 계산기가 낮고, 작은 약국은 높았습니다. 전 지역을 일괄로 올리고 작은 약국만 따로 내렸더니 적중이 41건에서 51건으로 올랐습니다.');
 }
 
-// ── 11. (숨김) 1차 계산식 ──
+// ── 11. (숨김) 1차 계산식을 어떻게 세웠나 ──
+{
+  const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.hist });
+  s.hidden = true;
+  s.addText('자료가 있는 건 자료로, 없는 건 장치로', { placeholder: 'title' });
+  backupBadge(s);
+  lead(s, '1차 계산식은 한 번에 나온 게 아니라, 항목마다 근거를 따로 두고 쌓아 올렸습니다.');
+
+  const rows = [
+    head(['무엇을', '무엇을 근거로', '어떻게 정했나']),
+    ['① 전체 구조', '0단계 40응답', '매출 × 12개월(7/40) vs 회수배수(32/40) → 회수배수 채택'],
+    ['② 지역별 개월수', '거래 사례 362건 가중회귀 (참고 자료)', '분포의 30 / 50 / 75 백분위를 빠른 매도 · 적정 · 높은 호가로'],
+    ['③ 규모 배수', '업계 통념 + 조사 응답', '조제료 5구간에 0.50 ~ 1.35'],
+    ['④ 안 되는 구간', '실무 관행', '월 700만원 미만은 권리금이 성립하지 않음 → 시설비 수준 고정'],
+    ['⑤ 리스크 할인', '실무 관행', '메인 병원 의사 65세 ×0.7 · 75세 ×0.5'],
+    [{ text: '⑥ 교정', options: { bold: true } },
+     { text: '2026-09 조사 60응답', options: { bold: true } },
+     { text: '전 지역 개월수 ×1.15 · 작은 약국 배수 0.88 → 0.50', options: { bold: true, color: T.accent1 } }],
+  ];
+  s.addTable(rows, tableOpts({ x: 0.7, y: 1.88, w: 11.9, fontSize: 12.5,
+    colW: [2.2, 3.6, 6.1], rowH: 0.52 }));
+
+  card(s, 0.7, 5.62, 11.9, 0.74, { fill: 'E3E6F5', line: 'B9BEE6', name: 'conc' });
+  s.addText('자료가 있는 항목은 자료로, 없는 항목은 "틀렸을 때 덜 다치는 쪽"으로 정하고 — 마지막에 ⑥에서 숫자로 교정했습니다',
+    { x: 1.1, y: 5.62, w: 11.1, h: 0.74, fontSize: 14, bold: true, color: '2A2E73',
+      isTextBox: true, margin: 0, valign: 'middle' });
+  footnote(s, 6.46, ['· 362건은 공개 실거래 자료가 아니라 참고용 사례 모음입니다 — 그래서 이 표를 "시작값"으로만 쓰고, ⑥의 조사로 교정했습니다.']);
+  s.addNotes('숨김 슬라이드입니다. "그 숫자들은 어디서 나왔냐"는 질문에 띄우세요. 핵심은 항목마다 근거가 다르다는 점과, 근거가 약한 항목일수록 보수적으로 잡고 마지막에 조사로 교정했다는 순서입니다.');
+}
+
+// ── 12. (숨김) 1차 계산식 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.hist });
   s.hidden = true;
@@ -517,7 +547,7 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   s.addNotes('숨김 슬라이드입니다. "계산식이 정확히 뭐냐"는 질문에 띄우세요.');
 }
 
-// ── 12. 1차 절벽 ──
+// ── 13. 1차 절벽 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.hist });
   s.addText('그런데 — 조제료 1만원 차이로 권리금이 2배가 됐다', { placeholder: 'title' });
@@ -545,7 +575,7 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   s.addNotes('구간을 나눈 편의가 그대로 결과의 왜곡이 됐습니다. 999만원과 1,000만원 약국이 두 배 차이 날 리가 없습니다. 쓰는 사람에게는 신뢰 문제입니다. 여기서 2차 작업이 시작됩니다.');
 }
 
-// ── 13. 2차 곡선 ──
+// ── 14. 2차 곡선 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.hist });
   s.addText('2차 — 네 지점은 두고, 사이만 직선으로 이었다', { placeholder: 'title' });
@@ -568,10 +598,10 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
       color: '2A2E73', isTextBox: true, margin: 0 });
   });
   bridge(s, 6.5, '그러면 2차가 더 정확해야 할 텐데 — 같은 60건으로 확인해 봤습니다');
-  s.addNotes('구간 사이를 직선으로 이었습니다. 네 지점의 값은 1차와 똑같으니 조사로 얻은 기준은 그대로 보존됩니다. 절벽은 사라졌습니다. 다른 방법들을 왜 버렸는지는 14번 숨김 슬라이드에 있습니다.');
+  s.addNotes('구간 사이를 직선으로 이었습니다. 네 지점의 값은 1차와 똑같으니 조사로 얻은 기준은 그대로 보존됩니다. 절벽은 사라졌습니다. 다른 방법들을 왜 버렸는지는 15번 숨김 슬라이드에 있습니다.');
 }
 
-// ── 14. (숨김) 2차 방법 선택 ──
+// ── 15. (숨김) 2차 방법 선택 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.hist });
   s.hidden = true;
@@ -606,7 +636,7 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   s.addNotes('숨김 슬라이드입니다. "왜 그 방법을 골랐냐"는 질문에 띄우세요.');
 }
 
-// ── 15. 2차 검증 (핵심) ──
+// ── 16. 2차 검증 (핵심) ──
 {
   const s = pres.addSlide({ masterName: 'CHART', sectionTitle: SEC.hist });
   s.addText('매끄럽게 만들었더니, 오히려 덜 맞았다', { placeholder: 'title' });
@@ -637,7 +667,7 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   s.addNotes('이 장이 발표에서 가장 중요한 장면입니다. 2차는 목표였던 절벽 제거에는 성공했지만 적중률은 오히려 떨어졌습니다. 더 매끄러운 식이 더 정확한 식은 아니었고, 검증 데이터가 있었기 때문에 쓰기 전에 알 수 있었습니다. 여기서 잠깐 멈추셔도 좋습니다.');
 }
 
-// ── 16. 3차 ──
+// ── 17. 3차 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.hist });
   s.addText('3차 — 사용자가 모르는 정보를 대신 가져왔다', { placeholder: 'title' });
@@ -669,7 +699,7 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   s.addNotes('3차는 입력하지 않은 정보를 주소만으로 가져옵니다. 왼쪽 위가 실제로 받아온 숫자, 왼쪽 아래가 AI의 지적입니다. 금액 자체는 1차 계산식이 그대로 내고, 3차는 그 위에 매물 조건을 곱합니다. 각주의 46건은 그 조정을 얹었을 때의 적중이고, 조정을 끄면 1차와 같은 51건입니다.');
 }
 
-// ── 17. (숨김) 3차 데이터 목록 ──
+// ── 18. (숨김) 3차 데이터 목록 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.hist });
   s.hidden = true;
@@ -714,7 +744,7 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
   s.addNotes('숨김 슬라이드입니다. "어떤 데이터를 쓰냐"는 질문에 띄우세요.');
 }
 
-// ── 18. (숨김) AI 지시문과 실패 ──
+// ── 19. (숨김) AI 지시문과 실패 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.hist });
   s.hidden = true;
@@ -766,13 +796,13 @@ divider(SEC.hist, 2, 'HOW', '이 숫자들을 어떻게 믿게 만들었나',
 // ═══════════════════════════════════════════════════ 3. SO WHAT ═══
 pres.addSection({ title: SEC.res });
 
-// ── 19. 전환 SO WHAT ──
+// ── 20. 전환 SO WHAT ──
 divider(SEC.res, 3, 'SO WHAT', '그래서 무엇이 달라졌나',
   '0단계부터 3차까지의 수정 기록',
   '세 버전의 역할과, 이 검증을 한 번으로 끝내지 않기 위한 장치',
   '세 번째입니다. 여기까지가 만든 과정이었고, 이제 그래서 무엇이 달라졌는지 정리하겠습니다.');
 
-// ── 20. 종합 비교 ──
+// ── 21. 종합 비교 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.res });
   s.addText('세 버전은 경쟁이 아니라 역할 분담', { placeholder: 'title' });
@@ -804,7 +834,7 @@ divider(SEC.res, 3, 'SO WHAT', '그래서 무엇이 달라졌나',
   s.addNotes('세 버전은 경쟁 관계가 아니라 역할 분담입니다. 3차는 1차 계산식을 그대로 불러 기초 금액을 내고, 그 위에 매물 조건을 곱합니다. 그래서 조정을 끄면 1차와 같은 51건이고, 화면 기본 조정을 얹으면 46건입니다. 조정 계수 자체는 아직 조사로 검증하지 못했다는 점을 솔직하게 말씀하시면 됩니다.');
 }
 
-// ── 21. 상시 검증 구조 ──
+// ── 22. 상시 검증 구조 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.res });
   s.addText('그래서 조사를 앱 안으로 넣었다', { placeholder: 'title' });
@@ -842,7 +872,7 @@ divider(SEC.res, 3, 'SO WHAT', '그래서 무엇이 달라졌나',
   s.addNotes('0단계에서 사람이 하던 일을 사용자가 대신하고, 그 결과가 다시 계산식으로 들어가는 순환입니다. 계산식이 응답 몇 건에 흔들리지 않도록 안전장치를 함께 뒀습니다.');
 }
 
-// ── 22. (숨김) 원자료와 재현성 ──
+// ── 23. (숨김) 원자료와 재현성 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.res });
   s.hidden = true;
@@ -885,7 +915,7 @@ divider(SEC.res, 3, 'SO WHAT', '그래서 무엇이 달라졌나',
   s.addNotes('숨김 슬라이드입니다. 수치 근거를 묻는 질문에 띄우세요.');
 }
 
-// ── 23. (숨김) 데이터와 키 발급 ──
+// ── 24. (숨김) 데이터와 키 발급 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.res });
   s.hidden = true;
@@ -931,13 +961,13 @@ divider(SEC.res, 3, 'SO WHAT', '그래서 무엇이 달라졌나',
 // ═══════════════════════════════════════════════════ 4. NEXT ═══
 pres.addSection({ title: SEC.next });
 
-// ── 24. 전환 NEXT ──
+// ── 25. 전환 NEXT ──
 divider(SEC.next, 4, 'NEXT', '앞으로 무엇을 하면 되나',
   '세 버전의 역할과 상시 검증 구조',
   '표본이 모이면 결론 나는 것들, 그리고 이 도구가 하지 않는 것',
   '마지막입니다. 지금 상태에서 무엇이 남았는지, 그리고 이 도구가 하지 않는 것이 무엇인지로 마무리하겠습니다.');
 
-// ── 25. 로드맵 ──
+// ── 26. 로드맵 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.next });
   s.addText('표본을 채우면 남은 판단이 데이터로 결정된다', { placeholder: 'title' });
@@ -988,7 +1018,7 @@ divider(SEC.next, 4, 'NEXT', '앞으로 무엇을 하면 되나',
   s.addNotes('1단계가 가장 급합니다. 지역별 30건이 모이면 지역 보정이 자동으로 돌고, 작은 약국 표본이 쌓이면 1차와 2차 중 어느 쪽이 맞는지도 결론이 납니다.');
 }
 
-// ── 26. 한계와 마무리 ──
+// ── 27. 한계와 마무리 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.next });
   s.addText('실거래 조회가 아니라, 설명 가능한 추정', { placeholder: 'title' });
@@ -1020,7 +1050,7 @@ divider(SEC.next, 4, 'NEXT', '앞으로 무엇을 하면 되나',
 // ═══════════════════════════════════════════════════ 부록 ═══
 pres.addSection({ title: SEC.ref });
 
-// ── 27. (숨김) 용어 정리 ──
+// ── 28. (숨김) 용어 정리 ──
 {
   const s = pres.addSlide({ masterName: 'CONTENT', sectionTitle: SEC.ref });
   s.hidden = true;
