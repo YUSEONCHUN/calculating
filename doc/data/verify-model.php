@@ -149,3 +149,29 @@ printf("  모델 ÷ 응답 중앙값 — 소형 %.2f배 (%.2f~%.2f) / 일반 %.2
     med($mA['small']), min($mA['small']), max($mA['small']),
     med($mA['large']), min($mA['large']), max($mA['large']));
 printf("모델 B (회수배수, 보정후 계수) 범위 적중 %d/%d\n", $mB['hit'], $mB['tot']);
+
+echo "\n[3차 — 1차 기초값 위에 매물 조정을 얹었을 때 (조사 60응답)]\n";
+// 3차는 1차와 같은 엔진(gwBaseQuote)으로 기초 시세를 내고 그 위에 매물 조건을 곱한다.
+// 조사지에는 상권·임대차 항목이 없으므로 화면 기본값으로 가정한다:
+//   상권 동네/주택가 0% · 병원 의존 복수 +10% · 잔여 계약 1~3년 0% · 임대료 부담(계산)
+$hit3 = 0; $tot3 = 0; $r3 = array(); $rates = array();
+foreach ($rows as $r) {
+    $key = $REGION[$r[1]];
+    $presc = (float) $r[2]; $otcD = (float) $r[4]; $rent = (float) $r[5]; $dep = (float) $r[6];
+    list($q, $f, $h, $profit) = quote($MONTHS[$key], stepMult($presc, 0.50, $MULT), $presc, $otcD, $rent, $dep);
+    $gross = $presc + $otcD * 0.4 * 25;                 // 월 매출총이익 (월세 차감 전)
+    $rentRatio = $gross > 0 ? $rent / $gross : 0;
+    $rate = 0.10;                                        // 병원 의존 복수 +10%
+    if ($rentRatio > 0.5) { $rate -= 0.20; } elseif ($rentRatio > 0.3) { $rate -= 0.10; }
+    $rates[] = $rate;
+    $m = 1 + $rate;
+    foreach (array(10, 11, 12) as $i) {
+        $a = (float) $r[$i];
+        $tot3++;
+        if ($a >= $q * $m && $a <= $h * $m) { $hit3++; }
+        $r3[] = $a / ($f * $m);
+    }
+}
+printf("3차 기본 입력  적중 %d/%d (%2.0f%%)  ratio중앙값 %.3f  조정률 중앙값 %+.0f%%\n",
+    $hit3, $tot3, $hit3 / $tot3 * 100, med($r3), med($rates) * 100);
+printf("  (참고) 1차 보정후 적중 %d/%d\n", $R['v1-post']['hit'], $R['v1-post']['tot']);
