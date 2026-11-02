@@ -175,3 +175,31 @@ foreach ($rows as $r) {
 printf("3차 기본 입력  적중 %d/%d (%2.0f%%)  ratio중앙값 %.3f  조정률 중앙값 %+.0f%%\n",
     $hit3, $tot3, $hit3 / $tot3 * 100, med($r3), med($rates) * 100);
 printf("  (참고) 1차 보정후 적중 %d/%d\n", $R['v1-post']['hit'], $R['v1-post']['tot']);
+
+echo "\n[회수배수 분포 — 응답 ÷ (월 환산수익 × 규모 배수 × 저수익 할인)]\n";
+// 지역 회수개월수 표를 "분포에서 30/50/75 백분위를 뽑는" 방식으로 만들었기 때문에,
+// 같은 방법을 조사 60응답에 다시 적용해 두 분포가 겹치는지 본다. (doc/images/recovery-dist.png)
+function pctile($a, $p) {
+    sort($a); $n = count($a); $i = ($n - 1) * $p; $lo = (int) floor($i); $hi = (int) ceil($i);
+    return $lo === $hi ? $a[$lo] : $a[$lo] + ($a[$hi] - $a[$lo]) * ($i - $lo);
+}
+$dist = array(); $allm = array();
+foreach ($rows as $r) {
+    $key = $REGION[$r[1]];
+    $presc = (float) $r[2]; $otc = (float) $r[4] * 0.4 * 25; $rent = (float) $r[5]; $dep = (float) $r[6];
+    $profit = $presc + $otc - ($rent + ($dep > 30000 ? $dep * 0.05 / 12 : 0));
+    $mult = stepMult($presc, 0.50, $MULT);
+    $caution = $profit >= 1000 ? 1.0 : ($profit >= 700 ? 0.5 + ($profit - 700) / 300 * 0.5 : 0);
+    if ($profit <= 0 || $caution <= 0) { continue; }
+    foreach (array(10, 11, 12) as $i) {
+        $m = (float) $r[$i] / ($profit * $mult * $caution);
+        $dist[$key][] = $m; $allm[] = $m;
+    }
+}
+printf("전체 n=%d  p30 %.1f / p50 %.1f / p75 %.1f  (범위 %.1f ~ %.1f)\n",
+    count($allm), pctile($allm, 0.30), pctile($allm, 0.50), pctile($allm, 0.75), min($allm), max($allm));
+foreach ($MONTHS as $key => $m) {
+    $v = $dist[$key];
+    printf("%-11s n=%2d  조사 %5.1f /%5.1f /%5.1f   모델 표 %5.1f /%5.1f /%5.1f\n",
+        $key, count($v), pctile($v, 0.30), pctile($v, 0.50), pctile($v, 0.75), $m[0], $m[1], $m[2]);
+}
