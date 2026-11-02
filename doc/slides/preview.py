@@ -15,9 +15,24 @@ EMU = 914400
 SW, SH = p.slide_width/EMU, p.slide_height/EMU
 PX = 96
 
+# 테마(스킴) 색 → 실제 색. deck.js 의 THEME 와 같은 값으로 맞춰 둔다.
+THEME_MAP = {
+    'BACKGROUND_1': 'FFFFFF', 'LIGHT_1': 'FFFFFF',
+    'TEXT_1': '0F172A', 'DARK_1': '0F172A',
+    'BACKGROUND_2': 'F1F5F9', 'LIGHT_2': 'F1F5F9',
+    'TEXT_2': '334155', 'DARK_2': '334155',
+    'ACCENT_1': '0F766E', 'ACCENT_2': 'B45309', 'ACCENT_3': '0D9488',
+    'ACCENT_4': '166534', 'ACCENT_5': '94A3B8', 'ACCENT_6': 'C2410C',
+}
+
 def rgb(obj, default=None):
     try:
-        if obj and obj.rgb is not None:
+        if obj is None:
+            return default
+        if obj.type is not None and str(obj.type).startswith('MSO_THEME_COLOR'):
+            name = str(obj.theme_color).split('.')[-1].split(' ')[0]
+            return THEME_MAP.get(name, default)
+        if obj.rgb is not None:
             return str(obj.rgb)
     except Exception:
         pass
@@ -99,8 +114,30 @@ def render_chart(gf, l, t, w, h):
     return (f'<div class="chart" style="left:{l}px;top:{t}px;width:{w}px;height:{h}px">'
             f'<div class="bars" style="height:{body_h+18}px">' + ''.join(grp_html) + '</div>' + legend + '</div>')
 
+def slide_bg(sld):
+    # 슬라이드 → 레이아웃 순으로 배경색을 찾는다 (pptxgenjs는 레이아웃에 배경을 넣는다)
+    for obj in (sld, sld.slide_layout):
+        try:
+            f = obj.background.fill
+            if f.type == 1:
+                return str(f.fore_color.rgb)
+        except Exception:
+            pass
+    return 'FFFFFF'
+
+def is_dark(hexcolor):
+    try:
+        r, g, b = (int(hexcolor[i:i+2], 16) for i in (0, 2, 4))
+        return (0.299*r + 0.587*g + 0.114*b) < 128
+    except Exception:
+        return False
+
 for i, s in enumerate(p.slides, 1):
-    parts.append(f'<div class="slide"><div class="num">{i}</div>')
+    bg = slide_bg(s)
+    # 자리표시자에서 색을 물려받는 글자는 python-pptx로 색을 읽을 수 없다 →
+    # 어두운 배경이면 흰 글자로 가정해 그린다 (배치 확인용 근사)
+    default_text = 'FFFFFF' if is_dark(bg) else '111111'
+    parts.append(f'<div class="slide" style="background:#{bg}"><div class="num">{i}</div>')
     for sh in s.shapes:
         try:
             l, t, w, h = sh.left/EMU*PX, sh.top/EMU*PX, sh.width/EMU*PX, sh.height/EMU*PX
@@ -134,7 +171,7 @@ for i, s in enumerate(p.slides, 1):
                 lh = ''
                 for r in para.runs:
                     fs = r.font.size.pt if r.font.size else 14
-                    col = rgb(r.font.color, '111111')
+                    col = rgb(r.font.color, default_text)
                     b = 'font-weight:700;' if r.font.bold else ''
                     lh += f'<span style="font-size:{fs}px;color:#{col};{b}">{html.escape(r.text)}</span>'
                 lines.append(lh or '&nbsp;')
