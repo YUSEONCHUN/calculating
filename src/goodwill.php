@@ -20,14 +20,6 @@ $calib = goodwillRegionCalib($calib_min_n, $calib_limit);
 // 적정성 설문 보정 (관리자 > 설문 집계에서 원클릭 반영, ±15% 한도) — 피드백 보정과 별개로 곱해짐
 $survey_cal = surveyCalibration('goodwill');
 
-// 지역 파트너 소개 (관리자 > 파트너 관리) — 권역 선택형 페이지라 권역→시도 매핑 변형을 미리 렌더,
-// 계산 시 JS가 선택 권역에 맞는 변형만 표시 (서울권→서울, 수도권→경기, 그 외→전국)
-require_once __DIR__ . '/partners.php';
-$partner_variants = array(
-    'seoul'    => renderPartnerList(array('서울특별시'), '', array('consulting', 'realtor', 'lawyer')),
-    'gyeonggi' => renderPartnerList(array('서울특별시', '경기도', '인천광역시'), '', array('consulting', 'realtor', 'lawyer')), // 수도권
-    'nation'   => renderPartnerList('', '', array('consulting', 'realtor', 'lawyer')),
-);
 ?>
 <!DOCTYPE html>
 <html lang="ko">
@@ -165,7 +157,6 @@ $partner_variants = array(
         .gw-cta .cta-btn { display: inline-block; padding: 11px 20px; background: #0f766e; color: #fff;
                            font-size: 0.9em; font-weight: bold; text-decoration: none; white-space: nowrap; }
         .gw-cta .cta-btn:hover { background: #115e59; }
-        .gw-partner-variant .partner-box { border-top: 3px solid #0e7490; }
 
         /* 피드백 — 명세서 스타일과 동일 톤 */
         .fb-lead { font-size: 0.85em; color: #64748b; margin: 6px 0 16px; }
@@ -346,9 +337,6 @@ $partner_variants = array(
         </div>
     </div>
 
-    <div id="gw-partner-seoul" class="gw-partner-variant" style="display:none;"><?= $partner_variants['seoul'] ?></div>
-    <div id="gw-partner-gyeonggi" class="gw-partner-variant" style="display:none;"><?= $partner_variants['gyeonggi'] ?></div>
-    <div id="gw-partner-nation" class="gw-partner-variant" style="display:none;"><?= $partner_variants['nation'] ?></div>
 
     <div class="result-sheet" id="fb-card" style="border-top-color:#0f766e;">
         <div class="sheet-head" style="border-bottom-color:#0f766e;">
@@ -552,14 +540,6 @@ function calc() {
     document.getElementById('d-calib').textContent = isCritical
         ? '미적용 (시설양도비 고정)'
         : (cal.n >= cal.min_n ? '× ' + cal.factor.toFixed(3) + ' (' + cal.n + '건 반영)' : '없음 (표본 ' + cal.n + '/' + cal.min_n + '건)');
-
-    // 지역 파트너 변형 표시 (서울권→서울, 수도권→경기, 그 외→전국)
-    var partnerKey = (region === 'seoul_core' || region === 'seoul') ? 'seoul'
-        : (region === 'metro' ? 'gyeonggi' : 'nation');
-    ['seoul', 'gyeonggi', 'nation'].forEach(function (k) {
-        var el = document.getElementById('gw-partner-' + k);
-        if (el) { el.style.display = (k === partnerKey && el.innerHTML.trim() !== '') ? 'block' : 'none'; }
-    });
 
     document.getElementById('result-wrap').style.display = 'block';
 

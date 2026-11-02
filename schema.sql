@@ -48,41 +48,7 @@ CREATE TABLE IF NOT EXISTS goodwill_feedback (
   KEY idx_fp (fingerprint)
 ) ENGINE=InnoDB;
 
--- 지역 파트너 소개 (약국 컨설팅·공인중개사) — 권리금 계산 결과 하단 노출, admin_partners.php 에서 관리
-CREATE TABLE IF NOT EXISTS partner_listings (
-  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  category   VARCHAR(12) NOT NULL,             -- consulting(약국 컨설팅) | realtor(공인중개사)
-  name       VARCHAR(60) NOT NULL,
-  phone      VARCHAR(30) NOT NULL DEFAULT '',
-  address    VARCHAR(120) NOT NULL DEFAULT '',
-  website    VARCHAR(200) NOT NULL DEFAULT '', -- 홈페이지 URL (선택)
-  sido       VARCHAR(20) NOT NULL DEFAULT '',  -- 노출 지역 시/도 ('' = 전국)
-  sigungu    VARCHAR(30) NOT NULL DEFAULT '',  -- 노출 지역 시/군/구 ('' = 시/도 전체)
-  note       VARCHAR(120) NOT NULL DEFAULT '',
-  sort_order INT NOT NULL DEFAULT 0,
-  is_active  TINYINT(1) NOT NULL DEFAULT 1,
-  views      INT UNSIGNED NOT NULL DEFAULT 0,  -- 결과 화면 노출 횟수 (partner_track.php)
-  clicks     INT UNSIGNED NOT NULL DEFAULT 0,  -- 전화·홈페이지 클릭 합계
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  KEY idx_region (sido, sigungu),
-  KEY idx_cat (category, is_active)
-) ENGINE=InnoDB;
 
--- 파트너 프로모션 기간 이력 (강조효과·상단고정) — admin_partners.php 프로모션 관리
-CREATE TABLE IF NOT EXISTS partner_promotions (
-  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  partner_id INT UNSIGNED NOT NULL,
-  promo_type VARCHAR(10) NOT NULL,            -- highlight(강조효과) | pin(상단고정)
-  start_date DATE NOT NULL,
-  end_date   DATE NOT NULL,
-  amount     INT UNSIGNED NOT NULL DEFAULT 0, -- 지불 비용 (원) — pin 은 금액 높은 순으로 상단 정렬
-  memo       VARCHAR(120) NOT NULL DEFAULT '',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  KEY idx_partner (partner_id, promo_type, end_date)
-) ENGINE=InnoDB;
-
-ALTER TABLE partner_listings ADD COLUMN IF NOT EXISTS views INT UNSIGNED NOT NULL DEFAULT 0 AFTER is_active;
-ALTER TABLE partner_listings ADD COLUMN IF NOT EXISTS clicks INT UNSIGNED NOT NULL DEFAULT 0 AFTER views;
 -- 매물 상담기록 (listings.php 매물 비교 — 브라우저 저장분을 서버에도 축적)
 -- 활용: 지역별 실매물 호가(ask) ÷ 모델 적정가(model_fair) ratio → 권리금 시세·계산 지역 보정에 합산 (goodwillRegionCalib)
 CREATE TABLE IF NOT EXISTS listing_reports (
@@ -112,21 +78,7 @@ CREATE TABLE IF NOT EXISTS listing_reports (
   KEY idx_region (region, kind)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 데모 회원 (가상 로그인 login.php — 입장 조건: 회원/약사/개국약사/관리자)
--- 추후 데일리팜 본사이트 회원 이관 대상 자리 (is_demo=0으로 적재 예정)
-CREATE TABLE IF NOT EXISTS site_members (
-  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  login_id   VARCHAR(30) NOT NULL UNIQUE,
-  name       VARCHAR(30) NOT NULL,
-  grade      VARCHAR(12) NOT NULL,            -- member|pharmacist|prep(개국준비)|owner|admin
-  upgrade_status VARCHAR(10) NOT NULL DEFAULT '', -- ''|pending|rejected (개국 준비 신청)
-  requested_at   TIMESTAMP NULL,
-  is_demo    TINYINT(1) NOT NULL DEFAULT 1,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-ALTER TABLE site_members ADD COLUMN IF NOT EXISTS upgrade_status VARCHAR(10) NOT NULL DEFAULT '' AFTER grade;
-ALTER TABLE site_members ADD COLUMN IF NOT EXISTS requested_at TIMESTAMP NULL AFTER upgrade_status;
 -- 적정성 설문 (survey.php 응답 — admin_survey.php 집계) : 권리금(goodwill)·급여(salary)·OTC 판매가(otc)
 -- ratio = est_amount ÷ model_amount 의 유형별 중앙값이 유형별 보정 계수
 CREATE TABLE IF NOT EXISTS goodwill_survey (

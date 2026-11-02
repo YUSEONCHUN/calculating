@@ -2,10 +2,7 @@
 // 권리금 도구 — 홈 (카드 목록은 nav.php 의 sideNavItems() 한 곳에서 관리)
 require_once __DIR__ . '/nav.php';
 
-$idx_user = authUser();
-$idx_lv = authLevel();
-$idx_lvnames = authLevelNames();
-$idx_gnames = authGradeNames();
+$idx_lv = authLevel();   // 방문자 0 / 관리자 비밀번호 인증 시 9
 
 $categories = array();
 foreach (sideNavItems() as $nav_title => $nav_group) {
@@ -22,7 +19,6 @@ foreach (sideNavItems() as $nav_title => $nav_group) {
             isset($it[4]) && $it[4] !== null ? $it[4] : $it[1],
             isset($it[2]) ? $it[2] : '',
             isset($it[3]) ? $it[3] : '#94a3b8',
-            authPageLevel($it[0]),
         );
     }
     $categories[] = array('title' => $nav_title, 'desc' => $nav_group['desc'], 'tools' => $tools);
@@ -63,15 +59,12 @@ foreach (sideNavItems() as $nav_title => $nav_group) {
 </head>
 <body>
 
+<?php if ($idx_lv >= 9) : ?>
 <div class="auth-bar">
-    <?php if ($idx_user !== null) : ?>
-        <span>👤 <b><?= htmlspecialchars($idx_user['name']) ?></b>님 · <?= htmlspecialchars(isset($idx_gnames[$idx_user['grade']]) ? $idx_gnames[$idx_user['grade']] : '') ?></span>
-        <a class="ab-btn" href="login.php?logout=1">로그아웃</a>
-    <?php else : ?>
-        <span style="color:#94a3b8;">비회원으로 둘러보는 중</span>
-        <a class="ab-btn ab-login" href="login.php">로그인</a>
-    <?php endif; ?>
+    <span>🔧 관리자 모드</span>
+    <a class="ab-btn" href="admin_data.php">관리자 콘솔</a>
 </div>
+<?php endif; ?>
 
 <div class="hero">
     <h1>💰 권리금 도구</h1>
@@ -85,20 +78,17 @@ foreach (sideNavItems() as $nav_title => $nav_group) {
         <?php if ($cat['desc'] !== ''): ?><span><?= htmlspecialchars($cat['desc']) ?></span><?php endif; ?>
     </div>
     <div class="grid">
-        <?php foreach ($cat['tools'] as $t):
-            $locked = $t[4] > $idx_lv;
-            $href = $locked ? 'login.php?next=' . htmlspecialchars($t[0]) . '&need=' . $t[4] : htmlspecialchars($t[0]);
-        ?>
-        <a class="tool-card<?= $locked ? ' locked' : '' ?>" href="<?= $href ?>" style="--accent: <?= htmlspecialchars($t[3]) ?>;">
-            <span class="tool-name"><?= htmlspecialchars($t[1]) ?><?= $locked ? ' 🔒' : '' ?></span>
-            <span class="tool-desc" style="display:block;"><?= htmlspecialchars($t[2]) ?><?= $locked ? ' — ' . htmlspecialchars(isset($idx_lvnames[$t[4]]) ? $idx_lvnames[$t[4]] : '회원') . ' 전용' : '' ?></span>
+        <?php foreach ($cat['tools'] as $t): ?>
+        <a class="tool-card" href="<?= htmlspecialchars($t[0]) ?>" style="--accent: <?= htmlspecialchars($t[3]) ?>;">
+            <span class="tool-name"><?= htmlspecialchars($t[1]) ?></span>
+            <span class="tool-desc" style="display:block;"><?= htmlspecialchars($t[2]) ?></span>
         </a>
         <?php endforeach; ?>
     </div>
 </div>
 <?php endforeach; ?>
 
-<p class="foot">데일리팜 약국 툴에서 권리금 관련 기능만 분리한 프로젝트입니다. 권리금 계산은 AI 분석에 Gemini API 키가 필요합니다(.env).</p>
+<p class="foot">데일리팜 약국 툴에서 권리금 관련 기능만 분리한 프로젝트입니다. 로그인 없이 누구나 사용할 수 있고, 권리금 계산의 AI 분석에만 Gemini API 키가 필요합니다(.env).</p>
 
 </body>
 </html>

@@ -47,7 +47,7 @@ function sideNavItems()
                 array('premium.php',   '권리금 계산', '회수배수 시세에 상권·병원·임대차 조건을 반영한 정밀 산정과 개국 자금 계획', '#0f9d58', null, 'prep,acq,sell,test'),
                 array('goodwill_parts.php', '권리금 구성', '총 권리금을 바닥·영업·시설(재고 포함)로 분해 — 협상 근거 확보', '#6d28d9', null, 'prep,acq,sell,test'),
                 array('listings.php',  '매물 비교',   '중개사·컨설팅에서 받은 매물을 시세 모델로 평가·비교', '#0e7490', null, 'prep,acq,test'),
-                array('goodwill_survey.php', '적정성 설문', '조사원 배포용 권리금 적정성 설문 (보정 데이터 수집)', '#9a3412', null, 'test'),
+                array('goodwill_survey.php', '적정성 설문', '조사원 배포용 권리금 적정성 설문 — 응답이 쌓이면 지역 보정에 반영', '#9a3412', null, 'test'),
                 array('premium_curve.php', '권리금 계산 (곡선형)', '임대료 부담 조정을 계단형 대신 선형보간으로 — 원본과 비교용', '#0d9488', null, 'test'),
                 array('goodwill_curve.php', '권리금 시세 (곡선형)', '조제료 규모 계수를 계단형 대신 선형보간으로 — 원본과 비교용', '#0d9488', null, 'test'),
             ),
@@ -56,12 +56,10 @@ function sideNavItems()
             'desc' => '',
             'admin' => true,
             'items' => array(
-                array('admin_members.php', '회원·권한',   '데모 회원 등급 관리·개국 준비 신청 승인', '#1d4ed8'),
                 array('admin_data.php',    '참고 데이터', '지역 회수개월수·조제료 규모 계수 등 모델 기준값', '#7c2d12', '참고 데이터 관리'),
                 array('admin_weights.php', '가중치 관리', '권리금 조정 계수·시세 가중치 등 계산식 계수', '#92400e'),
                 array('admin_survey.php',  '설문 집계',   '권리금 적정성 설문 집계와 원클릭 보정 반영', '#9a3412'),
                 array('admin_collected.php', '수집 데이터', '매물 호가·설문 등 수집 데이터 집계', '#155e75'),
-                array('admin_partners.php', '파트너 관리', '권리금 결과에 노출되는 지역 컨설팅·공인중개사', '#0e7490'),
                 array('status.php',        '시스템 상태', 'DB 연결 상태 확인', '#6b7280'),
             ),
         ),
@@ -123,11 +121,6 @@ function renderSideNav($current = null)
     .sn-auth .sa-btn { margin-left: auto; color: #94a3b8; text-decoration: none; border: 1px solid rgba(255,255,255,0.25);
                        border-radius: 6px; padding: 2px 8px; }
     .sn-auth .sa-btn:hover { color: #fff; border-color: rgba(255,255,255,0.5); }
-    .sn-auth .sa-login { color: #7dd3fc; border-color: rgba(125,211,252,0.5); }
-    /* 입장 조건 미달 항목 — 잠금 */
-    .side-nav a.sn-lock { color: #64748b; }
-    .side-nav a.sn-lock:hover { color: #94a3b8; background: rgba(255,255,255,0.06); }
-    .side-nav .lock-ico { font-size: 0.85em; opacity: 0.8; }
 
     /* 모바일·태블릿 폼 공통 (전 페이지 공용) —
        입력칸이 줄어들 수 있게 해 단위(만원 등)·버튼이 아래로 떨어지지 않도록 하고,
@@ -149,17 +142,13 @@ function renderSideNav($current = null)
 <nav class="nav-links side-nav">
         <button type="button" class="sn-close" onclick="navDrawerToggle(false)" aria-label="메뉴 닫기">✕</button>
         <a href="index.php" class="sn-home">💰 권리금 도구</a>
-        <?php $auth_user = authUser(); $auth_lv = authLevel(); $auth_personas = authPersonaKeys(); ?>
+        <?php $auth_lv = authLevel(); $auth_personas = authPersonaKeys(); ?>
+        <?php if ($auth_lv >= 9) : ?>
         <div class="sn-auth">
-            <?php if ($auth_user !== null) : $gn = authGradeNames(); ?>
-                <span class="sa-name">👤 <?= htmlspecialchars($auth_user['name']) ?></span>
-                <span class="sa-grade"><?= htmlspecialchars(isset($gn[$auth_user['grade']]) ? $gn[$auth_user['grade']] : $auth_user['grade']) ?></span>
-                <a class="sa-btn" href="login.php?logout=1">로그아웃</a>
-            <?php else : ?>
-                <span class="sa-name" style="color:#94a3b8;">비회원 (공개 도구만)</span>
-                <a class="sa-btn sa-login" href="login.php?next=<?= htmlspecialchars($current) ?>">로그인</a>
-            <?php endif; ?>
+            <span class="sa-name">🔧 관리자</span>
+            <a class="sa-btn" href="?dash_logout=1">관리 종료</a>
         </div>
+        <?php endif; ?>
         <?php if ($auth_personas === null || count($auth_personas) > 0) : ?>
         <div class="sn-persona">
             <div class="sp-label">내 상황</div>
@@ -172,13 +161,12 @@ function renderSideNav($current = null)
         </div>
         <?php endif; ?>
     <?php
-    $lvNames = authLevelNames();
     foreach (sideNavItems() as $cat => $group) {
         if (count($group['items']) === 0) {
             continue;
         }
         if (!empty($group['admin']) && $auth_lv < 9) {
-            continue; // 관리자 그룹은 관리자 로그인 시에만 렌더 (구 ?Admin= 방식 폐기)
+            continue; // 관리자 그룹은 관리자 비밀번호 인증 후에만 렌더
         }
         echo '        <div class="sn-group"><div class="sn-cat">' . htmlspecialchars($cat) . '</div>' . "\n";
         foreach ($group['items'] as $it) {
@@ -187,14 +175,8 @@ function renderSideNav($current = null)
             if (in_array($it[0], navCoreTools(), true)) {
                 $pAttr .= ' data-core="1"'; // 모두보기(기본) 노출 대상
             }
-            $needLv = authPageLevel($it[0]);
             if ($it[0] === $current) {
                 echo '        <span class="sn-on"' . $pAttr . '>' . htmlspecialchars($it[1]) . '</span>' . "\n";
-            } elseif ($needLv > $auth_lv) {
-                // 입장 조건 미달 — 잠금 표시, 클릭 시 로그인으로
-                $lvName = isset($lvNames[$needLv]) ? $lvNames[$needLv] : '회원';
-                echo '        <a class="sn-lock" href="login.php?next=' . htmlspecialchars($it[0]) . '&need=' . $needLv . '"'
-                    . $pAttr . ' title="' . htmlspecialchars($lvName) . ' 전용">' . htmlspecialchars($it[1]) . ' <span class="lock-ico">🔒</span></a>' . "\n";
             } else {
                 echo '        <a href="' . htmlspecialchars($it[0]) . '"' . $pAttr . '>' . htmlspecialchars($it[1]) . '</a>' . "\n";
             }
@@ -329,15 +311,8 @@ function renderMenuEditor()
             <button type="button" class="me-btn" onclick="menuEditorAll(false)">전체 해제</button>
         </div>
         <p class="me-desc">체크한 도구만 홈 카드와 모든 페이지의 메뉴에 표시됩니다. 이 브라우저에 저장되며, 상황 선택이 '직접 선택'으로 전환됩니다.</p>
-        <?php $me_lv = authLevel();
-        foreach (sideNavItems() as $me_cat => $me_group): if (!empty($me_group['admin']) || count($me_group['items']) === 0) { continue; }
-            // 내 등급으로 입장 가능한 도구만 편집 목록에 표시
-            $me_items = array();
-            foreach ($me_group['items'] as $me_it) {
-                if (authPageLevel($me_it[0]) <= $me_lv) {
-                    $me_items[] = $me_it;
-                }
-            }
+        <?php foreach (sideNavItems() as $me_cat => $me_group): if (!empty($me_group['admin']) || count($me_group['items']) === 0) { continue; }
+            $me_items = $me_group['items'];
             if (count($me_items) === 0) { continue; } ?>
         <div class="me-cat"><?= htmlspecialchars($me_cat) ?></div>
         <div class="me-grid">

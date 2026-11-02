@@ -1020,8 +1020,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <?php endif; ?>
 
 <?php if (!empty($api_response) && strpos($api_response, 'report-card') !== false) {
-    require_once __DIR__ . '/partners.php';
-    echo renderPartnerList(isset($sido) ? $sido : '', isset($sigungu) ? $sigungu : '', array('consulting', 'realtor', 'lawyer', 'finance')); // 지역 파트너 소개 (관리자 > 파트너 관리)
     echo renderFeedbackWidget('premium', isset($sido) ? $sido : '', isset($sigungu) ? $sigungu : '', '적정 권리금', '만원');
 } ?>
 
