@@ -1,0 +1,48 @@
+services:
+  db:
+    image: mariadb:10.11
+    container_name: forkaddon-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpw}
+      MARIADB_DATABASE: ${DB_NAME:-goodwill}
+      MARIADB_USER: ${DB_USER:-goodwill}
+      MARIADB_PASSWORD: ${DB_PASS:-goodwillpw}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - db_data:/var/lib/mysql
+      # 최초 기동 시 스키마 자동 적용
+      - ./schema.sql:/docker-entrypoint-initdb.d/10-schema.sql:ro
+    ports:
+      - "${DB_PORT_HOST:-3307}:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: forkaddon-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # config.php 의 envValue()는 .env 파일을 읽지만, 환경변수도 함께 쓸 수 있도록 전달
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: ${DB_NAME:-goodwill}
+      DB_USER: ${DB_USER:-goodwill}
+      DB_PASS: ${DB_PASS:-goodwillpw}
+    volumes:
+      # 개발 편의: 소스를 그대로 마운트해 수정 즉시 반영
+      - ./src:/var/www/html
+      - ./.env:/var/www/html/.env:ro
+    ports:
+      - "${WEB_PORT:-8080}:80"
+
+volumes:
+  db_data:

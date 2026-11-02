@@ -1,0 +1,155 @@
+/* =====================================================================
+   데일리팜 약국 툴 — 공용 테마 (각 페이지 <style> 뒤에 로드되어 기본 스타일을 다듬음)
+   색(페이지별 포인트 컬러)은 각 페이지가 유지하고, 여기서는 서체·여백·모서리·
+   포커스 등 공통 형태만 통일한다. 페이지별 포인트는 :root 의 --accent 로 넘겨받는다.
+   ===================================================================== */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+:root {
+    --accent: #2563eb;                    /* 페이지에서 재정의 (예: premium은 녹색) */
+    --ring: rgba(37, 99, 235, 0.14);      /* 포커스 링 — accent의 연한 버전으로 재정의 */
+    --ink: #1e293b;
+    --ink-soft: #64748b;
+    --line: #e2e8f0;
+    --radius: 14px;
+}
+
+body {
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+                 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    background-color: #f3f5f9;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
+}
+
+h2 { letter-spacing: -0.02em; }
+
+.search-box {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px 28px;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+label { color: #334155; font-size: 0.93em; }
+
+input[type="text"], input[type="number"], input[type="date"],
+input[type="password"], input[type="url"], input[type="tel"], select, textarea {
+    padding: 10px 12px;
+    border: 1px solid #d4dbe5;
+    border-radius: 9px;
+    background: #fff;
+    font-family: inherit;
+    font-size: 0.95em;
+    color: var(--ink);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--ring);
+}
+input::placeholder, textarea::placeholder { color: #a6afbd; }
+select { cursor: pointer; }
+input[readonly] { background: #f8fafc; }
+
+button {
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    transition: background-color 0.15s, transform 0.05s, box-shadow 0.15s;
+}
+button:active { transform: translateY(1px); }
+button[type="submit"] { padding: 14px 20px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12); }
+
+.unit { color: #8a94a3; }
+
+.report-card {
+    border-radius: var(--radius);
+    box-shadow: 0 10px 32px rgba(15, 23, 42, 0.08);
+}
+
+/* ---- 접이식 상세 조건 섹션 (details.adv) — 필수/선택 입력 분리 공용 스타일 ---- */
+details.adv {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fafbfd;
+    margin: 18px 0;
+}
+details.adv > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    font-weight: 700;
+    color: #334155;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+    flex-wrap: wrap;
+}
+details.adv > summary::-webkit-details-marker { display: none; }
+details.adv > summary::after {
+    content: '▾';
+    margin-left: auto;
+    color: #94a3b8;
+    font-size: 0.9em;
+    transition: transform 0.2s;
+}
+details.adv[open] > summary::after { transform: rotate(180deg); }
+details.adv[open] > summary { border-bottom: 1px dashed var(--line); }
+details.adv > summary:hover { color: var(--accent); }
+details.adv .adv-body { padding: 16px 16px 14px; }
+details.adv .adv-body .form-group:last-child { margin-bottom: 0; }
+.adv-hint { font-weight: 400; color: #94a3b8; font-size: 0.86em; }
+
+/* 핵심 입력 아래 안내 문구 (표준값 자동 적용 안내) */
+.prefill-note {
+    background: #f8fafc;
+    border: 1px dashed #d4dbe5;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.85em;
+    color: var(--ink-soft);
+    margin: 14px 0;
+    line-height: 1.6;
+}
+
+/* 지역 실측 데이터 미리보기 힌트 (analyzer/jobseeker 지역 선택 시) */
+.region-hint {
+    margin: -6px 0 15px 160px;
+    font-size: 0.84em;
+    color: #0369a1;
+    background: #f0f9ff;
+    border: 1px solid #e0f2fe;
+    border-radius: 8px;
+    padding: 8px 12px;
+    line-height: 1.5;
+}
+@media (max-width: 700px) {
+    .region-hint { margin-left: 0; }
+    .search-box { padding: 20px 16px; }
+}
+
+/* 입력칸 안에 단위(만원 등)를 겹쳐 표시하는 서픽스형 입력 — 권리금 시세(goodwill) 기준 디자인.
+   nav.php의 공용 스크립트가 input 뒤의 span.unit 선두 단위를 이 구조로 자동 변환한다.
+   flex form-group(input{flex:1}) 페이지에서는 래퍼가 flex 아이템이 되므로 flex:1을 준다. */
+/* flex-basis를 0이 아닌 콘텐츠 크기로 줘야 라벨이 width:100%인 모바일 레이아웃에서
+   줄바꿈이 일어난다 (basis 0이면 라벨 옆 같은 줄에 폭 0으로 붙어버림) */
+.suffix-wrap { position: relative; flex: 1 1 160px; min-width: 0; }
+.suffix-wrap .suffix {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    color: #9ca3af; font-size: 0.85em; pointer-events: none; white-space: nowrap;
+}
+.suffix-wrap input {
+    width: 100%; box-sizing: border-box; text-align: right;
+    padding-right: 52px; /* JS가 단위 실제 폭에 맞춰 인라인으로 재설정 */
+}
+/* 서픽스 자리와 겹치는 number 스피너 숨김 (min/max/step 검증은 유지됨) */
+.suffix-wrap input::-webkit-outer-spin-button,
+.suffix-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.suffix-wrap input[type="number"] { -moz-appearance: textfield; }
+.fb-value-wrap input { padding-right: 52px; }
