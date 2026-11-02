@@ -68,7 +68,7 @@ foreach (sideNavItems() as $nav_title => $nav_group) {
 
 <div class="hero">
     <h1>💰 권리금 도구</h1>
-    <p>실거래 회수배수 모델로 권리금 범위를 산정하고, 구성(바닥·영업·시설)을 분해하며, 받은 매물을 같은 기준으로 비교합니다.</p>
+    <p>실거래 회수배수 모델로 권리금 범위를 산정합니다. 규모 계수를 계단형(v1)과 곡선형(v2)으로 비교하고, 상권·임대차 조건까지 반영한 정밀 산정을 제공합니다.</p>
 </div>
 
 <?php foreach ($categories as $cat): ?>

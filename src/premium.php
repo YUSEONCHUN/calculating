@@ -21,7 +21,7 @@ $PW = adminSetting('premium_weights', array(
 define('MARGIN_DISPENSE', (float) $PW['margin_dispense']);       // 조제 매출 마진율 추정
 define('DEFAULT_OTC_MARGIN_PCT', (float) $PW['default_otc_margin_pct']); // OTC 마진율 기본값 (%) — 폼에서 조정 가능
 // (base_months·range_pct는 회수배수 엔진 도입으로 이 페이지에서 쓰이지 않는다.
-//  곡선형 비교 페이지(premium_curve.php)가 같은 설정을 계속 사용하므로 설정 키 자체는 유지)
+//  곡선형 비교 페이지를 삭제해 현재는 쓰이지 않지만, 관리자 설정 키는 그대로 둔다)
 
 // [개국 필요자금 추정 상수]
 define('INVENTORY_MONTHS', (float) $PW['inventory_months']);     // 초기 의약품 재고 = 월 매출원가 × 개월 수
@@ -209,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // 2) 기초 시세 (gwBaseQuote — 월 환산수익 × 지역 회수개월수 × 규모 계수, 저수익·의사 고령·보정 포함)
     $quote = gwBaseQuote($region_key, $presc_profit, $otc_profit, $monthly_rent, $deposit, $doctor_age);
-    $market_fair = $quote['fair']; // 매물 조정 전 기초 시세 (권리금 시세 페이지의 '중간 호가'와 동일 값)
+    $market_fair = $quote['fair']; // 매물 조정 전 기초 시세 (권리금 계산 v1 의 '중간 호가'와 동일 값)
 
     // 3) 매물 상세 조정 계수 (상권·병원 의존도·잔여 계약·임대료 부담 — 입력 검증 재계산에도 동일 함수 사용)
     //    시설양도비(임계점 미달) 구간은 이미 바닥가라 상세 조정 미적용
@@ -536,17 +536,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $adjRows .= "<li><span class='label'>" . htmlspecialchars($adj['label']) . "</span> <span class='value ref {$cls}'>{$sign}{$pct}%</span></li>";
             }
 
-            // 공공데이터 실측 패널
+            // ── 주변 의료기관 실측 (공공데이터포털) ──
+            // 약국 1곳당 병·의원 수는 처방 유입 여력을 보는 지표다. 전국 평균(약 1.7곳)을 기준선으로
+            // 비교해 과밀/여유를 판단한다. 키가 없거나 조회 실패 시에는 안내만 노출한다.
+            $NATION_HP_RATIO = 1.7;   // 전국 평균 병·의원 ÷ 약국 (참고선)
             $realdata_html = '';
             if ($real_data !== null || $biz_data !== null) {
                 $rows = '';
                 if ($real_data !== null) {
-                    $hp_ratio = $real_data['pharm_total'] > 0 ? round($real_data['hosp_total'] / $real_data['pharm_total'], 1) : 0;
-                    $rows .= "<li><span class='label'>" . htmlspecialchars($sido . ' ' . $sigungu) . " 병·의원 / 약국</span><span class='value ref'>"
-                        . number_format($real_data['hosp_total']) . "곳 / " . number_format($real_data['pharm_total']) . "곳 (비율 {$hp_ratio}:1)</span></li>";
+                    $hosp = (int) $real_data['hosp_total'];
+                    $pharm = (int) $real_data['pharm_total'];
+                    $hp_ratio = $pharm > 0 ? round($hosp / $pharm, 1) : 0;
+                    $rows .= "<li><span class='label'>" . htmlspecialchars($sido . ' ' . $sigungu) . " 병·의원</span>"
+                        . "<span class='value ref'>" . number_format($hosp) . "곳</span></li>";
+                    $rows .= "<li><span class='label'>" . htmlspecialchars($sido . ' ' . $sigungu) . " 약국</span>"
+                        . "<span class='value ref'>" . number_format($pharm) . "곳</span></li>";
+
+                    // 경쟁 밀도 해석 — 약국 1곳당 병·의원 수
+                    if ($pharm > 0) {
+                        if ($hp_ratio >= $NATION_HP_RATIO * 1.2) {
+                            $dense = array('plus', '처방 유입 여력이 평균보다 넉넉한 편');
+                        } elseif ($hp_ratio <= $NATION_HP_RATIO * 0.8) {
+                            $dense = array('minus', '약국이 상대적으로 많아 경쟁이 센 편');
+                        } else {
+                            $dense = array('', '전국 평균과 비슷한 수준');
+                        }
+                        $rows .= "<li><span class='label'>약국 1곳당 병·의원 (전국 평균 " . $NATION_HP_RATIO . "곳)</span>"
+                            . "<span class='value ref {$dense[0]}'>" . $hp_ratio . "곳 — " . $dense[1] . "</span></li>";
+                    }
                     if ($bname_in !== '') {
                         $rows .= "<li><span class='label'>'" . htmlspecialchars($bname_in) . "' 동 단위</span><span class='value ref'>병·의원 "
                             . number_format($real_data['hosp_dong']) . "곳 · 약국 " . number_format($real_data['pharm_dong']) . "곳</span></li>";
+                    }
+                    if (count($real_data['dong_hosp_names']) > 0) {
+                        $rows .= "<li><span class='label'>동 내 주요 의료기관</span><span class='value ref'>"
+                            . htmlspecialchars(implode(', ', array_slice($real_data['dong_hosp_names'], 0, 5))) . "</span></li>";
                     }
                 }
                 if ($biz_data !== null) {
@@ -557,8 +581,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $rows .= "<li><span class='label'>반경 500m 상가</span><span class='value ref'>" . number_format($biz_data['total']) . "곳"
                         . (count($chips) > 0 ? " (" . implode(' · ', $chips) . ")" : "") . "</span></li>";
                 }
-                $realdata_html = "<div class='real-data-box'><strong>📡 공공데이터 실측 (입력 검증 근거)</strong><ul class='salary-list'>{$rows}</ul>"
-                    . "<p class='src-note'>출처: 국립중앙의료원·소상공인시장진흥공단 (공공데이터포털)</p></div>";
+                $realdata_html = "<div class='real-data-box'><strong>🏥 주변 의료기관 실측</strong>"
+                    . "<p class='rd-lead'>입력한 주소의 행정구역 기준으로 공공데이터포털에서 직접 조회한 수치입니다. 아래 AI 분석과 입력 검증의 근거로도 쓰입니다.</p>"
+                    . "<ul class='salary-list'>{$rows}</ul>"
+                    . "<p class='src-note'>출처: 국립중앙의료원 병·의원/약국 찾기, 소상공인시장진흥공단 상권정보 (공공데이터포털)</p></div>";
+            } else {
+                // 키 미설정·조회 실패 — 왜 안 나오는지 결과 안에서 알 수 있게 한다
+                $why = envValue('DATA_GO_KR_KEY') === ''
+                    ? ".env 의 <code>DATA_GO_KR_KEY</code> 가 설정되지 않아 조회를 건너뛰었습니다."
+                    : "조회에 실패했습니다" . ($real_err !== '' ? " (" . htmlspecialchars($real_err) . ")" : "") . ".";
+                $realdata_html = "<div class='real-data-box rd-off'><strong>🏥 주변 의료기관 실측 — 미조회</strong>"
+                    . "<p class='rd-lead'>{$why} 공공데이터포털 인증키를 넣으면 이 자리에 해당 지역의 "
+                    . "<b>병·의원 수 · 약국 수 · 약국 1곳당 병·의원 수</b>가 표시되고, AI 분석에도 근거로 전달됩니다.</p></div>";
             }
 
             // 입력 검증 — AI 제안값과 비교, 불일치 시 수정 반영 재계산
@@ -660,7 +694,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <ul class='salary-list'>
                     <li><span class='label'>월 매출총이익 추정 (조제 " . (MARGIN_DISPENSE * 100) . "% + OTC {$otc_margin_disp}%)</span> <span class='value ref'>" . formatManwon($gross_profit) . "</span></li>
                     <li><span class='label'>월 환산수익 (조제 수익 + OTC 마진 − 월세·보증금 환산)</span> <span class='value ref'>" . formatManwon($quote['profit']) . "</span></li>
-                    <li><span class='label'>권리금 시세 입력 기준 환산 (같은 조건 대조용)</span> <span class='value ref'>월 조제료 " . number_format($presc_profit_in) . "만원 · 일반약 일매출 " . rtrim(rtrim(number_format($otc_daily_in, 1), '0'), '.') . "만원</span></li>
+                    <li><span class='label'>v1 입력 기준 환산 (같은 조건 대조용)</span> <span class='value ref'>월 조제료 " . number_format($presc_profit_in) . "만원 · 일반약 일매출 " . rtrim(rtrim(number_format($otc_daily_in, 1), '0'), '.') . "만원</span></li>
                     <li><span class='label'>기초 권리금 시세 ({$region_opts[$region_key]} · 실거래 회수배수 — 적정 회수 " . $quote['months_fair'] . "개월 × 규모 계수 " . number_format($quote['presc_mult'], 2) . ")</span> <span class='value ref'>" . formatManwon($market_fair) . "</span></li>
                     {$quoteRows}
                     {$adjRows}
@@ -712,7 +746,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>약국 권리금 계산기</title>
+    <title>권리금 계산 v3 (정밀)</title>
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; background-color: #f8fafc; }
@@ -802,6 +836,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .fallback-note { background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; padding: 10px 14px; color: #92400e; font-size: 0.85em; margin-bottom: 12px; }
 
         .real-data-box { background: #f0f9ff; border-top: 1px solid #bae6fd; padding: 16px 20px; }
+        .real-data-box .rd-lead { margin: 6px 0 10px; font-size: 0.85em; color: #0c4a6e; line-height: 1.6; }
+        .real-data-box.rd-off { background: #f8fafc; border-top-color: #e2e8f0; }
+        .real-data-box.rd-off strong { color: #64748b; }
+        .real-data-box.rd-off .rd-lead { color: #64748b; }
+        .real-data-box code { background: #e0f2fe; padding: 1px 5px; border-radius: 4px; font-size: 0.92em; }
         .real-data-box strong { color: #075985; }
         .real-data-box .salary-list li { padding: 8px 0 8px 0; border-bottom: 1px solid #e0f2fe; }
         .real-data-box .label { color: #0369a1; font-size: 0.9em; }
@@ -831,8 +870,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="search-box">
     <?php require_once __DIR__ . '/nav.php'; renderSideNav(); ?>
-    <h2 style="margin-top:0; color:#0b8043;">약국 권리금 계산기</h2>
-    <p style="color:#5f6368; font-size:0.95em; margin-bottom:20px;">실거래 회수배수 시세(권리금 시세와 동일 기준)에 상권·병원·임대차 조건을 반영해 권리금 범위(최소~최대)를 산출하고, AI가 상권·리스크 분석과 개국 자금 계획을 더해드립니다.</p>
+    <h2 style="margin-top:0; color:#0b8043;">💰 권리금 계산<span style="display:inline-block; vertical-align:middle; margin-left:8px; padding:2px 9px; border-radius:999px; font-size:0.5em; font-weight:bold; letter-spacing:0.02em; background:#dcfce7; color:#166534; border:1px solid #86efac;">v3 · 정밀</span></h2>
+    <p style="color:#5f6368; font-size:0.95em; margin-bottom:20px;">실거래 회수배수 시세(<a href="goodwill.php" style="color:#b45309;">권리금 계산 v1</a>과 동일 기준)에 상권·병원·임대차 조건을 반영해 권리금 범위(최소~최대)를 산출하고, AI가 상권·리스크 분석과 개국 자금 계획을 더해드립니다.</p>
 
     <form method="POST" action="" onsubmit="return validatePremiumForm()">
         <div class="form-group">
@@ -852,16 +891,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endforeach; ?>
             </select>
         </div>
-        <p class="f-note">「권리금 시세」와 동일한 지역 구분입니다. 주소를 검색하면 자동으로 선택됩니다.</p>
+        <p class="f-note">「권리금 계산 v1」과 동일한 지역 구분입니다. 주소를 검색하면 자동으로 선택됩니다.</p>
 
         <div class="form-group">
             <label for="input_mode">매출 입력 방식</label>
             <select id="input_mode" name="input_mode" onchange="applyInputMode()">
                 <option value="sales"<?= $input_mode === 'sales' ? ' selected' : '' ?>>월 매출 기준 (조제 매출 · OTC 매출)</option>
-                <option value="quote"<?= $input_mode === 'quote' ? ' selected' : '' ?>>권리금 시세와 동일 (월 조제료 · 일반약 일매출)</option>
+                <option value="quote"<?= $input_mode === 'quote' ? ' selected' : '' ?>>v1과 동일 (월 조제료 · 일반약 일매출)</option>
             </select>
         </div>
-        <p class="f-note">시세 방식은 「권리금 시세」에 넣는 값과 같은 형태로 입력해 두 페이지 결과를 비교할 때 사용합니다.</p>
+        <p class="f-note">시세 방식은 「권리금 계산 v1」에 넣는 값과 같은 형태로 입력해 두 결과를 비교할 때 사용합니다.</p>
 
         <div id="mode-sales">
             <div class="form-group">

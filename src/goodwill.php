@@ -26,7 +26,7 @@ $survey_cal = surveyCalibration('goodwill');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>권리금 시세 산정</title>
+    <title>권리금 계산 v1 (계단형)</title>
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; max-width: 860px; margin: 0 auto; background-color: #f8fafc; }
         .search-box { margin-bottom: 20px; padding: 25px; border: 1px solid #ddd; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -196,12 +196,12 @@ $survey_cal = surveyCalibration('goodwill');
 
 <div class="search-box">
     <?php require_once __DIR__ . '/nav.php'; renderSideNav(); ?>
-    <h2 class="page-title">💰 권리금 시세 산정</h2>
+    <h2 class="page-title">💰 권리금 계산<span style="display:inline-block; vertical-align:middle; margin-left:8px; padding:2px 9px; border-radius:999px; font-size:0.5em; font-weight:bold; letter-spacing:0.02em; background:#fef3c7; color:#92400e; border:1px solid #fde68a;">v1 · 계단형</span></h2>
     <p class="lead">
         실거래 회수배수 통계 기반으로 <strong>최소(빠른 매도) ~ 최대(높은 호가)</strong> 권리금 범위를 즉시 산출합니다.
         5개 변수만 입력하면 되고, AI 분석이 없어 결과가 바로 나옵니다.
-        정밀 수익성 분석과 개국 자금 계획이 필요하면 <a href="premium.php" style="color:#b45309;">권리금 계산</a>을 이용하세요.
-    </p>
+        정밀 수익성 분석과 개국 자금 계획이 필요하면 <a href="premium.php" style="color:#b45309;">권리금 계산 v3</a>를 이용하세요.
+    </p><div style="margin:12px 0 0; padding:10px 14px; background:#fffbeb; border-left:3px solid #f59e0b; font-size:0.84em; color:#334155; line-height:1.7;"><b>v1 — 조제료 규모 계수를 계단형으로 적용</b><br>월 조제료를 5개 구간(1,000만 미만 / 1,000~2,500 / 2,500~3,500 / 3,500~5,000 / 5,000 이상)으로 나눠 구간별 고정 계수를 곱합니다. 기준이 단순해 설명하기 쉬운 대신, <b>구간 경계에서 금액이 한 번에 뛰는 단점</b>이 있습니다. 경계를 없앤 버전은 <a href="goodwill_curve.php" style="color:#0d9488; font-weight:bold;">권리금 계산 v2</a>에서 비교해 보세요.</div>
 </div>
 
 <div class="search-box">

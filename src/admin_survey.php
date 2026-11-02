@@ -1,5 +1,5 @@
 <?php
-// 관리자 — 적정성 설문 집계 (survey.php 응답 분석) : 권리금·급여 시세·OTC 판매가 3주제
+// 관리자 — 권리금 적정성 설문 집계 (survey.php 응답 분석)
 // 핵심 지표: ratio = 응답자 조정액 ÷ 모델·시세 금액 — 유형별 중앙값이 곧 유형별 보정 계수
 $ADMIN_PAGE = 'survey';
 require __DIR__ . '/admin_common.php';
@@ -182,28 +182,14 @@ try {
 
 // 주제별 반영 대상 설명
 $apply_targets = array(
-    'goodwill' => '권리금 시세 · 권리금 시세(곡선형)의 산출액(빠른매도·적정·높은호가)에 계수를 곱합니다. 시설양도비 구간(임계점 미달)은 제외됩니다.',
-    'salary' => '구직자 급여 · 채용 분석이 사용하는 지역 급여 시세 기준값(salary_table 중앙값)에 계수를 곱합니다.',
-    'otc' => 'OTC 판매가 계산기의 실측 시세 패널에 체감 보정 중앙값을 병기합니다 (권장 판매가 자체는 바꾸지 않습니다).',
+    'goodwill' => '권리금 계산 v1·v2·v3 의 산출액(빠른매도·적정·높은호가)에 계수를 곱합니다. 시설양도비 구간(임계점 미달)은 제외됩니다.',
 );
 
-// 주제별 밴드·해석 설명
-if ($topic === 'goodwill') {
-    $band_desc = '조정액이 빠른매도~높은호가 내';
-    $hint = '<b>읽는 법</b> — ratio 중앙값 1.15 = 그 유형은 모델보다 평균 15% 높게 봄 → 유형별 보정 계수로 사용 가능.
-        예상 패턴은 매도 &gt; 중개사 ≈ 일반 &gt; 매수이며, <b>중개사</b>를 기준(1.0 근처)으로 삼으면 나머지 유형의 상대 프리미엄/디스카운트가 나옵니다.
-        "비쌈" 비율이 높고 ratio&lt;1이면 모델 상향이 아니라 <b>하향</b> 신호입니다. 유형당 5명 이상부터 방향성, 15명 이상부터 크기를 신뢰하세요.';
-} elseif ($topic === 'salary') {
-    $band_desc = '조정액이 시세 중앙값 ±15% 내';
-    $hint = '<b>읽는 법</b> — ratio 중앙값 1.10 = 그 유형은 시세 중앙값보다 10% 높게 봄.
-        예상 패턴은 근무약사·구직 &gt; 개국약사(고용주)이며, 격차가 크면 시세 표에 <b>희망급여/제시급여 구분 표기</b>가 필요하다는 신호입니다.
-        "낮음" 비율이 높으면 조사 데이터가 시장 체감보다 낮게 적재된 것 — 다음 조사 회차에서 세전/세후·근무시간 통제를 강화하세요. 유형당 5명 이상부터 방향성을 신뢰하세요.';
-} else {
-    $band_desc = '조정액이 시세 중앙값 ±15% 내';
-    $hint = '<b>읽는 법</b> — ratio 중앙값 1.10 = 그 유형은 전국 시세 중앙값보다 10% 높게 봄.
-        예상 패턴은 약사 &gt; 소비자(소비자는 낮게 추정)이며, 격차가 크면 판매가 진단의 권장가에 <b>지역·상권 보정</b>이 필요하다는 신호입니다.
-        특정 품목만 ratio가 튀면 그 품목의 조사 중앙값(포장·함량 혼입)을 점검하세요. 유형당 5명 이상부터 방향성을 신뢰하세요.';
-}
+// 밴드·해석 설명 (권리금 단일 주제)
+$band_desc = '조정액이 빠른매도~높은호가 내';
+$hint = '<b>읽는 법</b> — ratio 중앙값 1.15 = 그 유형은 모델보다 평균 15% 높게 봄 → 유형별 보정 계수로 사용 가능.
+    예상 패턴은 매도 &gt; 중개사 ≈ 일반 &gt; 매수이며, <b>중개사</b>를 기준(1.0 근처)으로 삼으면 나머지 유형의 상대 프리미엄/디스카운트가 나옵니다.
+    "비쌈" 비율이 높고 ratio&lt;1이면 모델 상향이 아니라 <b>하향</b> 신호입니다. 유형당 5명 이상부터 방향성, 15명 이상부터 크기를 신뢰하세요.';
 
 $hint .= ' 설문은 계산 결과를 보여준 상태에서 ±로 조정하는 방식이라 ratio가 1 근처로 보수적으로 나옵니다 — 절대 크기보다 <b>유형 간 상대 비교</b>(누가 더 높게/낮게 보나)와 방향에 초점을 두세요.';
 
@@ -218,9 +204,6 @@ adminPageOpen(
 ?>
 
 <style>
-    .gs-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-    .gs-tab { padding: 9px 18px; border-radius: 20px; border: 1.5px solid #d1d5db; background: #fff; color: #374151; font-weight: bold; font-size: 0.88em; text-decoration: none; }
-    .gs-tab.on { border-color: #b45309; background: #fff7ed; color: #9a3412; }
     .gs-tbl { width: 100%; border-collapse: collapse; font-size: 0.87em; }
     .gs-tbl th { text-align: center; padding: 8px 8px; color: #6b7280; font-size: 0.88em; border-bottom: 2px solid #f3f4f6; white-space: nowrap; }
     .gs-tbl td { padding: 8px; border-bottom: 1px solid #f9fafb; text-align: center; font-variant-numeric: tabular-nums; }
@@ -236,11 +219,6 @@ adminPageOpen(
     .hint { font-size: 0.82em; color: #6b7280; background: #f8fafc; border: 1px dashed #d4dbe5; border-radius: 8px; padding: 10px 14px; line-height: 1.7; margin-top: 12px; }
 </style>
 
-<div class="gs-tabs">
-    <?php foreach ($TOPICS as $tk => $t) : ?>
-    <a class="gs-tab <?= $tk === $topic ? 'on' : '' ?>" href="?topic=<?= $tk ?>"><?= htmlspecialchars($t['name']) ?></a>
-    <?php endforeach; ?>
-</div>
 
 <div class="result-card">
     <div class="grp-head"><h3>👥 유형별 요약 — <?= htmlspecialchars($TC['name']) ?></h3>
@@ -334,7 +312,7 @@ adminPageOpen(
 <?php if ($total_ans > 0) : ?>
 <div class="result-card">
     <div class="grp-head"><h3>📐 케이스 × 유형 — ratio 중앙값</h3></div>
-    <p class="grp-desc"><?php if ($topic === 'goodwill') : ?>특정 케이스(규모·지역)에서만 격차가 벌어지는지 확인합니다. C4는 소형(두 모델 격차 큰 케이스), C1·C5는 대형입니다.<?php elseif ($topic === 'salary') : ?>특정 지역에서만 시세와 체감의 격차가 벌어지는지 확인합니다. 모델가는 salary_table 지역 중앙값입니다.<?php else : ?>특정 품목에서만 시세와 체감의 격차가 벌어지는지 확인합니다. 모델가는 otc_prices 전국 중앙값입니다.<?php endif; ?></p>
+    <p class="grp-desc">특정 케이스(규모·지역)에서만 격차가 벌어지는지 확인합니다. C4는 소형(두 모델 격차 큰 케이스), C1·C5는 대형입니다.</p>
     <div class="tbl-scroll"><table class="gs-tbl">
         <tr><th>케이스</th><th>조건 요약</th><th>시세·모델가</th>
             <?php foreach ($TYPES as $tk => $tn) : ?><th><?= mb_substr($tn, 0, 2) ?></th><?php endforeach; ?></tr>

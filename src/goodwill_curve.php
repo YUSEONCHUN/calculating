@@ -26,7 +26,7 @@ $survey_cal = surveyCalibration('goodwill');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>권리금 시세 산정 (곡선형 비교)</title>
+    <title>권리금 계산 v2 (곡선형)</title>
     <style>
         body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; max-width: 860px; margin: 0 auto; background-color: #f8fafc; }
         .search-box { margin-bottom: 20px; padding: 25px; border: 1px solid #ddd; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -148,15 +148,15 @@ $survey_cal = surveyCalibration('goodwill');
 <div class="search-box">
     <?php require_once __DIR__ . '/nav.php'; renderSideNav(); ?>
     <div style="background:#ecfdf5; border:1px solid #6ee7b7; border-radius:10px; padding:10px 14px; margin-bottom:16px; font-size:0.85em; color:#065f46; line-height:1.6;">
-        🧪 <strong>비교용 페이지 — 조제료 규모 계수를 곡선형(구간 선형보간)으로 계산합니다.</strong>
-        원본은 <a href="goodwill.php" style="color:#047857; font-weight:bold;">권리금 시세 산정(계단형)</a>에서 그대로 유지됩니다. 결과 비교를 위해 의견 수집은 이 페이지에서 비활성화했습니다.
+        🧪 <strong>v2 — v1의 구간 경계를 없앤 버전입니다.</strong>
+        <a href="goodwill.php" style="color:#047857; font-weight:bold;">권리금 계산 v1(계단형)</a>과 같은 조건을 넣어 결과를 비교해 보세요. 비교를 위해 의견 수집은 이 페이지에서 비활성화했습니다.
     </div>
-    <h2 class="page-title">💰 권리금 시세 산정 <span style="font-size:0.55em; color:#0d9488; font-weight:bold; vertical-align:middle;">곡선형</span></h2>
+    <h2 class="page-title">💰 권리금 계산<span style="display:inline-block; vertical-align:middle; margin-left:8px; padding:2px 9px; border-radius:999px; font-size:0.5em; font-weight:bold; letter-spacing:0.02em; background:#ccfbf1; color:#0f766e; border:1px solid #5eead4;">v2 · 곡선형</span></h2>
     <p class="lead">
         실거래 회수배수 통계 기반으로 <strong>빠른매도 / 적정 호가 / 높은 호가</strong> 3단계 가격대를 즉시 산출합니다.
         5개 변수만 입력하면 되고, AI 분석이 없어 결과가 바로 나옵니다.
-        정밀 수익성 분석과 개국 자금 계획이 필요하면 <a href="premium_curve.php" style="color:#b45309;">권리금 계산</a>을 이용하세요.
-    </p>
+        정밀 수익성 분석과 개국 자금 계획이 필요하면 <a href="premium.php" style="color:#b45309;">권리금 계산 v3</a>를 이용하세요.
+    </p><div style="margin:12px 0 0; padding:10px 14px; background:#f0fdfa; border-left:3px solid #0d9488; font-size:0.84em; color:#334155; line-height:1.7;"><b>v2 — 조제료 규모 계수를 선형보간으로 적용</b><br>v1이 구간별 고정 계수를 쓰는 것과 달리, 구간 사이를 직선으로 이어 조제료가 1만원만 달라도 계수가 그만큼만 움직입니다. <b>경계에서 금액이 튀지 않는 것</b>이 v1과의 유일한 차이이며, 지역 회수개월수·보정 등 나머지 계산은 v1과 동일합니다.</div>
 </div>
 
 <div class="search-box">
@@ -263,7 +263,7 @@ $survey_cal = surveyCalibration('goodwill');
         <div class="gw-cta">
             <div class="cta-text">이 결과는 회수배수 기반 <strong>약식 시세</strong>입니다.<br>
                 수익성 분석·개국 자금 계획·매물 조건 실측 검증까지 필요하다면 정밀 계산기를 이용해보세요.</div>
-            <a class="cta-btn" href="premium_curve.php">📊 권리금 계산기에서 자세히 계산하기 →</a>
+            <a class="cta-btn" href="premium.php">📊 권리금 계산기에서 자세히 계산하기 →</a>
         </div>
     </div>
 

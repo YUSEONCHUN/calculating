@@ -264,7 +264,7 @@ adminPageOpen(
         <span class="cnt-chip"><?= number_format($lr_total) ?>건</span>
     </div>
     <p class="grp-desc" style="font-size:0.85em; color:#6b7280;">
-        <a href="listings.php" target="_blank">매물 비교</a>에서 저장된 매물이 익명으로 축적됩니다.
+        매물 비교 도구에서 축적된 기록입니다. (도구는 이 프로젝트에서 제외되어 신규 적재는 없습니다)
         지역별 <b>호가 ÷ 모델 적정가</b> 평균이 권리금 시세·계산의 지역 보정에 합산됩니다
         (기존 인수·테스트 제외분만, 실사용 피드백과 합산 표본 30건부터 ±10% 한도). 테스트 가데이터는 보정에서 제외됩니다.
     </p>
