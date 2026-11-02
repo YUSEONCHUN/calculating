@@ -44,7 +44,8 @@ docker compose up -d --build
 - [프로젝트 발표자료](doc/03-프로젝트-발표자료.md) — 목적·히스토리·조사 데이터·API·로드맵 요약 (PPT 원고)
 - [조사 원자료](doc/data/2026-09-권리금-적정성-조사.csv) — 20케이스 × 조사원 3명 응답
 - [검증 스크립트](doc/data/verify-model.php) — 원자료로 v1·v2를 보정 전/후 계수로 다시 계산 (`php doc/data/verify-model.php`)
-- [발표 슬라이드 (PPTX)](doc/slides/권리금계산기_프로젝트.pptx) — 18장 · 생성 스크립트 `doc/slides/deck.js`
+- [슬라이드 구성안](doc/04-슬라이드-구성.md) — 22장 각각의 헤드라인·본문·시각화 가이드
+- [발표 슬라이드 (PPTX)](doc/slides/권리금계산기_프로젝트.pptx) — 22장 · 생성 스크립트 `doc/slides/deck.js`
 
 ## 계산 모델
 
