@@ -46,7 +46,7 @@ docker compose up -d --build
 - [검증 스크립트](doc/data/verify-model.php) — 원자료로 v1·v2를 보정 전/후 계수로 다시 계산 (`php doc/data/verify-model.php`)
 - [슬라이드 구성안](doc/04-슬라이드-구성.md) — 27장 지도(보이는 19 + 숨김 8) · 전환 설계 · 분량 조절
 - [발표 대본](doc/05-발표-대본.md) — 15분 기준 슬라이드별 멘트 · 10/20분 조절 · 예상 질문별 숨김 슬라이드
-- [발표 슬라이드 (PPTX)](doc/slides/권리금계산기_프로젝트.pptx) — 27장(숨김 8장 포함) · 10~20분 발표용 · 생성 스크립트 `doc/slides/deck.js`
+- [발표 슬라이드 (PPTX)](doc/slides/권리금계산기_프로젝트.pptx) — 27장(숨김 8장 포함) · 10~20분 발표용 · 사내 템플릿 색·서체 적용 · 생성 스크립트 `doc/slides/deck.js`
 
 ## 계산 모델
 
