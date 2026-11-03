@@ -39,7 +39,7 @@ def rgb(obj, default=None):
     return default
 
 parts = ['<!doctype html><meta charset="utf-8"><style>',
-    'body{background:#52525b;font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif;margin:0;padding:24px}',
+    'body{background:#52525b;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;margin:0;padding:24px}',
     f'.slide{{position:relative;width:{SW*PX}px;height:{SH*PX}px;background:#fff;margin:0 auto 26px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,.35)}}',
     '.num{position:absolute;left:-54px;top:0;color:#fff;font-size:20px;font-weight:700}',
     '.tb{position:absolute;box-sizing:border-box;line-height:1.3}',

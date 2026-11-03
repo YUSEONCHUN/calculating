@@ -57,6 +57,7 @@ HEX = {
 }
 
 MONO = 'Consolas'        # 맥·윈도우 오피스에 모두 들어 있는 고정폭
+BASE_FONT = '맑은 고딕'    # 원본 본문 글꼴 (--font 로 바꿀 수 있다)
 NUM_RE = re.compile(r'^[\s\d.,/:%~+\-–—×()]+$')
 
 SECTION_TAG = [
@@ -65,8 +66,9 @@ SECTION_TAG = [
 ]
 
 
-def remap_hex(src: Path, dst: Path):
-    """모든 XML 파트의 srgbClr 값을 바꾼다 (테마·마스터·레이아웃·슬라이드·차트)"""
+def remap_hex(src: Path, dst: Path, font=None):
+    """모든 XML 파트의 srgbClr 값을 바꾼다 (테마·마스터·레이아웃·슬라이드·차트)
+    font 를 주면 본문 글꼴도 그 이름으로 바꾼다 — 숫자용 고정폭은 그대로 둔다."""
     pat = re.compile(r'(val=")([0-9A-Fa-f]{6})(")')
 
     def sub(m):
@@ -85,6 +87,10 @@ def remap_hex(src: Path, dst: Path):
             ):
                 text = data.decode('utf-8')
                 text = pat.sub(sub, text)
+                if font:
+                    text = text.replace(f'typeface="{BASE_FONT}"', f'typeface="{font}"')
+                    if item.filename.startswith('ppt/slideMasters/'):
+                        text = text.replace('typeface="Arial"', f'typeface="{font}"')
                 if item.filename.startswith('ppt/charts/'):
                     # 차트 수치 라벨만 고정폭으로
                     text = re.sub(
@@ -194,17 +200,24 @@ def mono_numbers(prs):
 
 
 def main():
-    src = Path(sys.argv[1] if len(sys.argv) > 1 else 'doc/slides/권리금계산기_프로젝트.pptx')
-    out = src.with_name(src.stem + '_블루프린트.pptx')
+    args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    font = None
+    for a in sys.argv[1:]:
+        if a.startswith('--font='):
+            font = a.split('=', 1)[1]
+    src = Path(args[0] if args else 'doc/slides/권리금계산기_프로젝트.pptx')
+    suffix = '_블루프린트' + (f'_{font}' if font else '')
+    out = src.with_name(src.stem + suffix + '.pptx')
     tmp = src.with_name('.tmp_blueprint.pptx')
-    remap_hex(src, tmp)
+    remap_hex(src, tmp, font)
     prs = Presentation(str(tmp))
     g = add_grid_to_layouts(prs)
     t = add_section_tags(prs)
     m = mono_numbers(prs)
     prs.save(str(out))
     tmp.unlink()
-    print(f'{out.name} — 격자 레이아웃 {g}종 · 섹션 태그 {t}장 · 고정폭 숫자 {m}곳')
+    print(f'{out.name} — 격자 레이아웃 {g}종 · 섹션 태그 {t}장 · 고정폭 숫자 {m}곳'
+          + (f' · 본문 글꼴 {font}' if font else ''))
 
 
 if __name__ == '__main__':
