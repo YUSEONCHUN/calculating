@@ -150,13 +150,24 @@ def is_dark(hexcolor):
     except Exception:
         return False
 
+def drawable(slide_like):
+    """그릴 도형 목록 — 레이아웃에서는 자리표시자(안내 문구)를 뺀다"""
+    out = []
+    for sh in slide_like.shapes:
+        if getattr(sh, 'is_placeholder', False):
+            continue
+        out.append(sh)
+    return out
+
+
 for i, s in enumerate(p.slides, 1):
     bg = slide_bg(s)
     # 자리표시자에서 색을 물려받는 글자는 python-pptx로 색을 읽을 수 없다 →
     # 어두운 배경이면 흰 글자로 가정해 그린다 (배치 확인용 근사)
     default_text = 'FFFFFF' if is_dark(bg) else '111111'
     parts.append(f'<div class="slide" style="background:#{bg}"><div class="num">{i}</div>')
-    for sh in s.shapes:
+    # 레이아웃 도형(격자·고정 요소)을 먼저 깔고 그 위에 슬라이드 도형을 그린다
+    for sh in list(drawable(s.slide_layout)) + list(s.shapes):
         try:
             l, t, w, h = sh.left/EMU*PX, sh.top/EMU*PX, sh.width/EMU*PX, sh.height/EMU*PX
         except Exception:
